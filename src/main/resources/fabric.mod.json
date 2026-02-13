@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 1,
+  "id": "swaplist",
+  "version": "${version}",
+  "name": "swaplist",
+  "description": "",
+  "authors": [],
+  "contact": {},
+  "license": "MIT",
+  "icon": "assets/swaplist/icon.png",
+  "environment": "client",
+  "entrypoints": {
+    "fabric-datagen": [
+      "rainflight.swaplist.client.SwaplistDataGenerator"
+    ],
+    "client": [
+      "rainflight.swaplist.client.SwaplistClient"
+    ],
+    "main": [
+      "rainflight.swaplist.Swaplist"
+    ]
+  },
+  "mixins": [
+    "swaplist.mixins.json",
+    {
+      "config": "swaplist.client.mixins.json",
+      "environment": "client"
+    }
+  ],
+  "depends": {
+    "fabricloader": ">=${loader_version}",
+    "fabric-api": "*",
+    "minecraft": "${minecraft_version}"
+  }
+}
