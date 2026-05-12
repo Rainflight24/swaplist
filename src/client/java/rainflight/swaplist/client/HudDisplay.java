@@ -5,48 +5,52 @@ import io.wispforest.owo.ui.container.FlowLayout;
 import io.wispforest.owo.ui.container.UIContainers;
 import io.wispforest.owo.ui.core.*;
 import io.wispforest.owo.ui.hud.Hud;
+import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
-import rainflight.swaplist.Swaplist;
+import org.jspecify.annotations.NonNull;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class HudDisplay {
     final Identifier id;
-    private final List<Component> items;
-    private final List<Boolean> toggled;
-    private int width, height;
     private boolean visible = true;
 
-    public HudDisplay(Identifier id, int width, int height) {
-        this.id = id;
-        items = new ArrayList<>();
-        toggled = new ArrayList<>();
-        this.width = width;
-        this.height = height;
+    public HudDisplay(Identifier id) {
+        SwaplistClient.CONFIG.subscribeToListWidth(t -> rebuild());
+        SwaplistClient.CONFIG.subscribeToListHeight(t -> rebuild());
+        SwaplistClient.CONFIG.subscribeToListColor(t -> rebuild());
 
+        this.id = id;
         rebuild();
+    }
+
+    private static @NonNull ArrayList<TodoList.ListItem> getItems() {
+        return new ArrayList<>(SwaplistClient.CONFIG.items());
     }
 
     private void rebuild() {
         if (visible) {
+            final int width = SwaplistClient.CONFIG.listWidth();
+            final int height = SwaplistClient.CONFIG.listHeight();
+            final Color color = SwaplistClient.CONFIG.listColor();
+
             Hud.remove(id);
             Hud.add(id, () -> {
                 FlowLayout fl = UIContainers.verticalFlow(Sizing.fixed(width), Sizing.content())
                         .gap(3);
 
-                Swaplist.LOGGER.debug(fl.padding().toString());
-                for (int i=0; i<items.size(); i++) {
-                    Component c = items.get(i);
+                List<TodoList.ListItem> items = getItems();
+                for (TodoList.ListItem listItem : items) {
+                    Component c = Component.literal(listItem.text);
 
                     final int gap = 5;
 
                     var checkbox = UIComponents.smallCheckbox(null);
-                    checkbox.checked(toggled.get(i));
+                    checkbox.checked(listItem.toggled);
 
-
-                    var label = UIComponents.label(c).maxWidth(width - gap*2 - checkbox.width());
+                    var label = UIComponents.label(c).maxWidth(width - gap * 2 - checkbox.width() - 30).color(color); // TODO: make a better way of determining sizing besides subtracting a bunch of random numbers
                     fl.child(UIContainers.horizontalFlow(Sizing.content(), Sizing.content())
                             .child(checkbox)
                             .child(label)
@@ -54,7 +58,7 @@ public class HudDisplay {
                             .verticalAlignment(VerticalAlignment.CENTER));
                 }
 
-                fl.positioning(Positioning.absolute(50, 50))
+                fl.positioning(Positioning.absolute(0, 50))
                         .padding(Insets.of(10))
                         .surface(Surface.BLANK)
                         .horizontalAlignment(HorizontalAlignment.LEFT)
@@ -67,12 +71,14 @@ public class HudDisplay {
         }
     }
 
+    /**
+     * Determines the number of items in the list.
+     *
+     * @return ^
+     */
     public int itemCount() {
+        List<TodoList.ListItem> items = getItems();
         return items.size();
-    }
-
-    public Component item(int index) {
-        return items.get(index);
     }
 
     /**
@@ -81,8 +87,9 @@ public class HudDisplay {
      * @param line The text to display.
      */
     public void pushLine(String line) {
-        items.add(Component.literal(line));
-        toggled.add(false);
+        List<TodoList.ListItem> items = getItems();
+        items.add(new TodoList.ListItem(line, false));
+        SwaplistClient.CONFIG.items(items);
         rebuild();
     }
 
@@ -90,10 +97,11 @@ public class HudDisplay {
      * Removes the most recently added line of text.
      */
     public void popLine() {
+        List<TodoList.ListItem> items = getItems();
         if (!items.isEmpty()) {
             items.removeLast();
-            toggled.removeLast();
             rebuild();
+            SwaplistClient.CONFIG.items(items);
         }
     }
 
@@ -103,11 +111,12 @@ public class HudDisplay {
      * @param idx The one-indexed index to remove.
      */
     public void removeLine(int idx) {
+        List<TodoList.ListItem> items = getItems();
         if (idx >= 1 && idx <= items.size()) {
             items.remove(idx - 1);
-            toggled.remove(idx - 1);
             rebuild();
         }
+        SwaplistClient.CONFIG.items(items);
     }
 
     /**
@@ -116,8 +125,11 @@ public class HudDisplay {
      * @param idx The one-indexed index to toggle.
      */
     public void toggleLine(int idx) {
-        toggled.set(idx - 1, !toggled.get(idx - 1));
+        List<TodoList.ListItem> items = getItems();
+        TodoList.ListItem old = items.get(idx - 1);
+        items.set(idx - 1, new TodoList.ListItem(old.text, !old.toggled));
         rebuild();
+        SwaplistClient.CONFIG.items(items);
     }
 
     public boolean isVisible() {
@@ -128,4 +140,5 @@ public class HudDisplay {
         this.visible = visible;
         rebuild();
     }
+
 }

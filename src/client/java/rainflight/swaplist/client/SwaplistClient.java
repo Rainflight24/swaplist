@@ -12,7 +12,6 @@ import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
-import net.minecraft.commands.arguments.ComponentArgument;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import org.lwjgl.glfw.GLFW;
@@ -20,6 +19,8 @@ import rainflight.swaplist.Swaplist;
 
 public class SwaplistClient implements ClientModInitializer {
     private HudDisplay hudDisplay;
+
+    public static final rainflight.swaplist.client.SwaplistConfig CONFIG = rainflight.swaplist.client.SwaplistConfig.createAndLoad();
 
     private static int executeAddDocs(CommandContext<FabricClientCommandSource> context) {
         context.getSource().sendFeedback(Component.literal("~/add."));
@@ -56,7 +57,7 @@ public class SwaplistClient implements ClientModInitializer {
             }
         });
 
-        hudDisplay = new HudDisplay(Identifier.parse("test1"), 25, 30);
+        hudDisplay = new HudDisplay(Identifier.parse("test1"));
     }
 
     private void registerCommands() {
@@ -88,6 +89,11 @@ public class SwaplistClient implements ClientModInitializer {
             dispatcher.register(ClientCommandManager.literal("remove")
                     .then(ClientCommandManager.argument("index", IntegerArgumentType.integer())
                             .executes(this::executeRemove)));
+
+            dispatcher.register(ClientCommandManager.literal("width")
+                    .then(ClientCommandManager.argument("newWidth", IntegerArgumentType.integer(100))
+                            .executes(this::executeWidth))
+                    .executes(this::executeShowWidth));
         });
     }
 
@@ -126,5 +132,19 @@ public class SwaplistClient implements ClientModInitializer {
                     .formatted(idx, hudDisplay.itemCount())));
             return -1;
         }
+    }
+
+    private int executeShowWidth(CommandContext<FabricClientCommandSource> context) {
+        context.getSource().sendFeedback(Component.literal("Current width: %d pixels."
+                .formatted(SwaplistClient.CONFIG.listWidth())));
+        return 1;
+    }
+
+    private int executeWidth(CommandContext<FabricClientCommandSource> context) {
+        int width = IntegerArgumentType.getInteger(context, "newWidth");
+        SwaplistClient.CONFIG.listWidth(width);
+        context.getSource().sendFeedback(Component.literal("Set width to: %d pixels."
+                .formatted(width)));
+        return 1;
     }
 }
