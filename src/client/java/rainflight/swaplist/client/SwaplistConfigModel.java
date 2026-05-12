@@ -2,23 +2,15 @@ package rainflight.swaplist.client;
 
 import io.wispforest.owo.config.annotation.*;
 import io.wispforest.owo.ui.core.Color;
-import net.minecraft.resources.Identifier;
 import rainflight.swaplist.Swaplist;
 
 import java.util.ArrayList;
 import java.util.List;
 
+@SuppressWarnings("unused") // model class fields are not directly used
 @Modmenu(modId = Swaplist.MOD_ID)
 @Config(name = Swaplist.MOD_ID, wrapperName = "SwaplistConfig")
 public class SwaplistConfigModel {
-
-//    @Nest
-//    public ThisIsNested nestedObject = new ThisIsNested();
-//
-//    public static class ThisIsNested {
-//        public boolean aNestedValue = false;
-//        public int anotherNestedValue = 42;
-//    }
 
     @Hook
     @PredicateConstraint("listWidthPredicate")

@@ -3,7 +3,7 @@ package rainflight.swaplist.client;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricLanguageProvider;
 import net.minecraft.core.HolderLookup;
-import net.minecraft.data.DataGenerator;
+import org.jspecify.annotations.NonNull;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -13,7 +13,7 @@ public class SwaplistEnglishLangProvider extends FabricLanguageProvider {
     }
 
     @Override
-    public void generateTranslations(HolderLookup.Provider holderLookup, TranslationBuilder translationBuilder) {
+    public void generateTranslations(HolderLookup.@NonNull Provider holderLookup, TranslationBuilder translationBuilder) {
         translationBuilder.add("text.config.swaplist.option.listWidth", "List width");
         translationBuilder.add("text.config.swaplist.option.listWidth.tooltip", "in pixels, must be at least 100");
         translationBuilder.add("text.config.swaplist.option.listHeight", "List max height");

@@ -5,7 +5,6 @@ import io.wispforest.owo.ui.container.FlowLayout;
 import io.wispforest.owo.ui.container.UIContainers;
 import io.wispforest.owo.ui.core.*;
 import io.wispforest.owo.ui.hud.Hud;
-import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import org.jspecify.annotations.NonNull;
@@ -30,6 +29,9 @@ public class HudDisplay {
         return new ArrayList<>(SwaplistClient.CONFIG.items());
     }
 
+    /**
+     * Pulls relevant info from config and builds the display on hud.
+     */
     private void rebuild() {
         if (visible) {
             final int width = SwaplistClient.CONFIG.listWidth();
@@ -38,12 +40,12 @@ public class HudDisplay {
 
             Hud.remove(id);
             Hud.add(id, () -> {
-                FlowLayout fl = UIContainers.verticalFlow(Sizing.fixed(width), Sizing.content())
+                final FlowLayout fl = UIContainers.verticalFlow(Sizing.fixed(width), Sizing.content())
                         .gap(3);
 
-                List<TodoList.ListItem> items = getItems();
+                final List<TodoList.ListItem> items = getItems();
                 for (TodoList.ListItem listItem : items) {
-                    Component c = Component.literal(listItem.text);
+                    final Component c = Component.literal(listItem.text);
 
                     final int gap = 5;
 
@@ -77,8 +79,7 @@ public class HudDisplay {
      * @return ^
      */
     public int itemCount() {
-        List<TodoList.ListItem> items = getItems();
-        return items.size();
+        return getItems().size();
     }
 
     /**
@@ -87,7 +88,7 @@ public class HudDisplay {
      * @param line The text to display.
      */
     public void pushLine(String line) {
-        List<TodoList.ListItem> items = getItems();
+        final List<TodoList.ListItem> items = getItems();
         items.add(new TodoList.ListItem(line, false));
         SwaplistClient.CONFIG.items(items);
         rebuild();
@@ -97,7 +98,7 @@ public class HudDisplay {
      * Removes the most recently added line of text.
      */
     public void popLine() {
-        List<TodoList.ListItem> items = getItems();
+        final List<TodoList.ListItem> items = getItems();
         if (!items.isEmpty()) {
             items.removeLast();
             rebuild();
@@ -111,7 +112,7 @@ public class HudDisplay {
      * @param idx The one-indexed index to remove.
      */
     public void removeLine(int idx) {
-        List<TodoList.ListItem> items = getItems();
+        final List<TodoList.ListItem> items = getItems();
         if (idx >= 1 && idx <= items.size()) {
             items.remove(idx - 1);
             rebuild();
@@ -125,7 +126,7 @@ public class HudDisplay {
      * @param idx The one-indexed index to toggle.
      */
     public void toggleLine(int idx) {
-        List<TodoList.ListItem> items = getItems();
+        final List<TodoList.ListItem> items = getItems();
         TodoList.ListItem old = items.get(idx - 1);
         items.set(idx - 1, new TodoList.ListItem(old.text, !old.toggled));
         rebuild();
