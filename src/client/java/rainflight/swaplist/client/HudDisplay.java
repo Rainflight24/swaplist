@@ -11,6 +11,7 @@ import org.jspecify.annotations.NonNull;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
 public class HudDisplay {
     final Identifier id;
@@ -19,6 +20,8 @@ public class HudDisplay {
     public HudDisplay(Identifier id) {
         SwaplistClient.CONFIG.subscribeToListWidth(t -> rebuild());
         SwaplistClient.CONFIG.subscribeToListHeight(t -> rebuild());
+        SwaplistClient.CONFIG.subscribeToListHorizontalPos(t -> rebuild());
+        SwaplistClient.CONFIG.subscribeToListVerticalPos(t -> rebuild());
         SwaplistClient.CONFIG.subscribeToListColor(t -> rebuild());
 
         this.id = id;
@@ -30,10 +33,12 @@ public class HudDisplay {
     }
 
     /**
-     * Pulls relevant info from config and builds the display on hud.
+     * Pulls relevant info from config and puts the current list on hud.
      */
     private void rebuild() {
         if (visible) {
+            final int hPos = SwaplistClient.CONFIG.listHorizontalPos();
+            final int vPos = SwaplistClient.CONFIG.listVerticalPos();
             final int width = SwaplistClient.CONFIG.listWidth();
             final int height = SwaplistClient.CONFIG.listHeight();
             final Color color = SwaplistClient.CONFIG.listColor();
@@ -60,7 +65,7 @@ public class HudDisplay {
                             .verticalAlignment(VerticalAlignment.CENTER));
                 }
 
-                fl.positioning(Positioning.absolute(0, 50))
+                fl.positioning(Positioning.absolute(hPos, vPos))
                         .padding(Insets.of(10))
                         .surface(Surface.BLANK)
                         .horizontalAlignment(HorizontalAlignment.LEFT)
