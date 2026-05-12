@@ -7,11 +7,8 @@ import io.wispforest.owo.ui.core.*;
 import io.wispforest.owo.ui.hud.Hud;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
-import org.jspecify.annotations.NonNull;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Consumer;
 
 public class HudDisplay {
     final Identifier id;
@@ -23,13 +20,11 @@ public class HudDisplay {
         SwaplistClient.CONFIG.subscribeToListHorizontalPos(t -> rebuild());
         SwaplistClient.CONFIG.subscribeToListVerticalPos(t -> rebuild());
         SwaplistClient.CONFIG.subscribeToListColor(t -> rebuild());
+        SwaplistClient.CONFIG.subscribeToLists(t -> rebuild());
+        SwaplistClient.CONFIG.subscribeToCurActiveList(t -> rebuild());
 
         this.id = id;
         rebuild();
-    }
-
-    private static @NonNull ArrayList<TodoList.ListItem> getItems() {
-        return new ArrayList<>(SwaplistClient.CONFIG.items());
     }
 
     /**
@@ -48,7 +43,8 @@ public class HudDisplay {
                 final FlowLayout fl = UIContainers.verticalFlow(Sizing.fixed(width), Sizing.content())
                         .gap(3);
 
-                final List<TodoList.ListItem> items = getItems();
+                final TodoList curList = SwaplistConfigModel.getCurList();
+                final List<TodoList.ListItem> items = curList.items;
                 for (TodoList.ListItem listItem : items) {
                     final Component c = Component.literal(listItem.text);
 
@@ -84,7 +80,7 @@ public class HudDisplay {
      * @return ^
      */
     public int itemCount() {
-        return getItems().size();
+        return SwaplistConfigModel.getCurList().items.size();
     }
 
     /**
@@ -93,21 +89,19 @@ public class HudDisplay {
      * @param line The text to display.
      */
     public void pushLine(String line) {
-        final List<TodoList.ListItem> items = getItems();
-        items.add(new TodoList.ListItem(line, false));
-        SwaplistClient.CONFIG.items(items);
-        rebuild();
+        final TodoList list = SwaplistConfigModel.getCurList();
+        list.items.add(new TodoList.ListItem(line, false));
+        SwaplistConfigModel.saveCurList(list);
     }
 
     /**
      * Removes the most recently added line of text.
      */
     public void popLine() {
-        final List<TodoList.ListItem> items = getItems();
-        if (!items.isEmpty()) {
-            items.removeLast();
-            rebuild();
-            SwaplistClient.CONFIG.items(items);
+        final TodoList list = SwaplistConfigModel.getCurList();
+        if (!list.items.isEmpty()) {
+            list.items.removeLast();
+            SwaplistConfigModel.saveCurList(list);
         }
     }
 
@@ -117,12 +111,11 @@ public class HudDisplay {
      * @param idx The one-indexed index to remove.
      */
     public void removeLine(int idx) {
-        final List<TodoList.ListItem> items = getItems();
-        if (idx >= 1 && idx <= items.size()) {
-            items.remove(idx - 1);
-            rebuild();
+        final TodoList list = SwaplistConfigModel.getCurList();
+        if (idx >= 1 && idx <= list.items.size()) {
+            list.items.remove(idx - 1);
+            SwaplistConfigModel.saveCurList(list);
         }
-        SwaplistClient.CONFIG.items(items);
     }
 
     /**
@@ -131,11 +124,10 @@ public class HudDisplay {
      * @param idx The one-indexed index to toggle.
      */
     public void toggleLine(int idx) {
-        final List<TodoList.ListItem> items = getItems();
-        TodoList.ListItem old = items.get(idx - 1);
-        items.set(idx - 1, new TodoList.ListItem(old.text, !old.toggled));
-        rebuild();
-        SwaplistClient.CONFIG.items(items);
+        final TodoList list = SwaplistConfigModel.getCurList();
+        TodoList.ListItem old = list.items.get(idx - 1);
+        list.items.set(idx - 1, new TodoList.ListItem(old.text, !old.toggled));
+        SwaplistConfigModel.saveCurList(list);
     }
 
     public boolean isVisible() {

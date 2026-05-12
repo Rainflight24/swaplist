@@ -1,5 +1,6 @@
 package rainflight.swaplist.client;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -11,6 +12,18 @@ public class TodoList {
     public List<ListItem> items;
 
     public TodoList() {
+        this.name = "Todo List";
+        this.items = new ArrayList<>();
+    }
+
+    public TodoList(String name, List<ListItem> items) {
+        this.name = name;
+        this.items = items;
+    }
+
+    public TodoList(TodoList oldList) {
+        this.name = oldList.name;
+        this.items = oldList.items;
     }
 
     final public static class ListItem {

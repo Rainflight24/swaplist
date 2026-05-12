@@ -17,10 +17,11 @@ import net.minecraft.resources.Identifier;
 import org.lwjgl.glfw.GLFW;
 import rainflight.swaplist.Swaplist;
 
-public class SwaplistClient implements ClientModInitializer {
-    private HudDisplay hudDisplay;
+import java.util.ArrayList;
 
+public class SwaplistClient implements ClientModInitializer {
     public static final rainflight.swaplist.client.SwaplistConfig CONFIG = rainflight.swaplist.client.SwaplistConfig.createAndLoad();
+    private HudDisplay hudDisplay;
 
     private static int executeAddDocs(CommandContext<FabricClientCommandSource> context) {
         context.getSource().sendFeedback(Component.literal("~/add."));
@@ -94,6 +95,14 @@ public class SwaplistClient implements ClientModInitializer {
                     .then(ClientCommandManager.argument("newWidth", IntegerArgumentType.integer(100))
                             .executes(this::executeWidth))
                     .executes(this::executeShowWidth));
+
+            dispatcher.register(ClientCommandManager.literal("new")
+                    .executes(this::executeNew));
+
+            dispatcher.register(ClientCommandManager.literal("swap") // TODO: make a ArgumentType with cap = size
+                    .then(ClientCommandManager.argument("index", IntegerArgumentType.integer(1))
+                            .executes(this::executeSwap)));
+
         });
     }
 
@@ -113,8 +122,7 @@ public class SwaplistClient implements ClientModInitializer {
         if (idx >= 1 && idx <= hudDisplay.itemCount()) {
             hudDisplay.removeLine(idx);
             return 1;
-        }
-        else {
+        } else {
             context.getSource().sendError(Component.literal("Index %d must be between 1 and the length of the list, %d."
                     .formatted(idx, hudDisplay.itemCount())));
             return -1;
@@ -126,8 +134,7 @@ public class SwaplistClient implements ClientModInitializer {
         if (idx >= 1 && idx <= hudDisplay.itemCount()) {
             hudDisplay.toggleLine(idx);
             return 1;
-        }
-        else {
+        } else {
             context.getSource().sendError(Component.literal("Index %d must be between 1 and the length of the list, %d."
                     .formatted(idx, hudDisplay.itemCount())));
             return -1;
@@ -146,5 +153,31 @@ public class SwaplistClient implements ClientModInitializer {
         context.getSource().sendFeedback(Component.literal("Set width to: %d pixels."
                 .formatted(width)));
         return 1;
+    }
+
+    private int executeNew(CommandContext<FabricClientCommandSource> context) {
+        // Create a new TodoList.
+        SwaplistConfigModel.sanitizeLists();
+        var l = new ArrayList<>(SwaplistClient.CONFIG.lists());
+        l.add(new TodoList());
+        SwaplistClient.CONFIG.lists(l);
+
+        // Also change the active list.
+        SwaplistClient.CONFIG.curActiveList(l.size());
+        return 1;
+    }
+
+    private int executeSwap(CommandContext<FabricClientCommandSource> context) {
+        SwaplistConfigModel.sanitizeLists();
+        int index = IntegerArgumentType.getInteger(context, "index");
+
+        if (index >= 1 && index <= SwaplistClient.CONFIG.lists().size()) {
+            SwaplistClient.CONFIG.curActiveList(index);
+            return 1;
+        }
+
+        context.getSource().sendError(Component.literal("Index %d must be between 1 and the number of lists, %d."
+                .formatted(index, SwaplistClient.CONFIG.lists().size())));
+        return -1;
     }
 }
