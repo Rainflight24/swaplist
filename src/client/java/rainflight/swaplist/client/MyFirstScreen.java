@@ -12,7 +12,7 @@ import org.jetbrains.annotations.NotNull;
 
 public class MyFirstScreen extends BaseOwoScreen<FlowLayout> {
 
-    public static UIComponent f () {
+    public static UIComponent f() {
         LabelComponent label1 = UIComponents.label(Component.literal("Item 1"));
 
 
@@ -47,7 +47,6 @@ public class MyFirstScreen extends BaseOwoScreen<FlowLayout> {
                 .surface(Surface.VANILLA_TRANSLUCENT)
                 .horizontalAlignment(HorizontalAlignment.CENTER)
                 .verticalAlignment(VerticalAlignment.CENTER);
-
 
 
         rootComponent.child(f());

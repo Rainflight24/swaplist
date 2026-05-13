@@ -36,7 +36,7 @@ public class SwaplistConfigModel {
 
     @Hook
     @ExcludeFromScreen
-    public List<TodoList> lists = new ArrayList<>(List.of(new TodoList("TODO", new ArrayList<>())));
+    public List<TodoList> lists = new ArrayList<>(List.of(new TodoList()));
 
 //    @ExcludeFromScreen TODO: uncomment once done testing
     @Hook
@@ -78,7 +78,7 @@ public class SwaplistConfigModel {
     }
 
     /**
-     * Saves the provided todolist to config, replacing the currently active list.
+     * Saves the provided todolist to config, while replacing the currently active list.
      *
      * @param list The todolist to save.
      */

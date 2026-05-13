@@ -103,6 +103,10 @@ public class SwaplistClient implements ClientModInitializer {
                     .then(ClientCommandManager.argument("index", IntegerArgumentType.integer(1))
                             .executes(this::executeSwap)));
 
+            dispatcher.register(ClientCommandManager.literal("rename")
+                    .then(ClientCommandManager.argument("newName", StringArgumentType.greedyString())
+                            .executes(this::executeRename)));
+
         });
     }
 
@@ -179,5 +183,14 @@ public class SwaplistClient implements ClientModInitializer {
         context.getSource().sendError(Component.literal("Index %d must be between 1 and the number of lists, %d."
                 .formatted(index, SwaplistClient.CONFIG.lists().size())));
         return -1;
+    }
+
+    private int executeRename(CommandContext<FabricClientCommandSource> context) {
+        SwaplistConfigModel.sanitizeLists();
+        String newName = StringArgumentType.getString(context, "newName");
+        TodoList list = SwaplistConfigModel.getCurList();
+        list.name = newName;
+        SwaplistConfigModel.saveCurList(list);
+        return 1;
     }
 }

@@ -40,29 +40,35 @@ public class HudDisplay {
 
             Hud.remove(id);
             Hud.add(id, () -> {
-                final FlowLayout fl = UIContainers.verticalFlow(Sizing.fixed(width), Sizing.content())
-                        .gap(3);
-
                 final TodoList curList = SwaplistConfigModel.getCurList();
                 final List<TodoList.ListItem> items = curList.items;
+                final int insetSize = 10;
+
+                final FlowLayout fl = UIContainers.verticalFlow(Sizing.fixed(width), Sizing.content())
+                        .gap(3);
+                // Label line wrapping requires manual width calculations.
+                fl.child(UIComponents.label(Component.literal(curList.name))
+                        .color(color)
+                        .maxWidth(width - 2*insetSize));
+
                 for (TodoList.ListItem listItem : items) {
                     final Component c = Component.literal(listItem.text);
 
                     final int gap = 5;
-
+                    final int checkboxSize = 13; // TODO: is this really the best way of determining the checkbox's size
                     var checkbox = UIComponents.smallCheckbox(null);
                     checkbox.checked(listItem.toggled);
 
-                    var label = UIComponents.label(c).maxWidth(width - gap * 2 - checkbox.width() - 30).color(color); // TODO: make a better way of determining sizing besides subtracting a bunch of random numbers
+                    var label = UIComponents.label(c).maxWidth(width - gap - 2*insetSize - checkboxSize).color(color); // TODO: make a better way of determining sizing besides subtracting a bunch of random numbers
                     fl.child(UIContainers.horizontalFlow(Sizing.content(), Sizing.content())
                             .child(checkbox)
                             .child(label)
-                            .gap(5)
+                            .gap(gap)
                             .verticalAlignment(VerticalAlignment.CENTER));
                 }
 
                 fl.positioning(Positioning.absolute(hPos, vPos))
-                        .padding(Insets.of(10))
+                        .padding(Insets.of(insetSize))
                         .surface(Surface.BLANK)
                         .horizontalAlignment(HorizontalAlignment.LEFT)
                         .verticalAlignment(VerticalAlignment.TOP);
