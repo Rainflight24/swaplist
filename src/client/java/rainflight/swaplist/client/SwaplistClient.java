@@ -18,6 +18,7 @@ import org.lwjgl.glfw.GLFW;
 import rainflight.swaplist.Swaplist;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class SwaplistClient implements ClientModInitializer {
     public static final rainflight.swaplist.client.SwaplistConfig CONFIG = rainflight.swaplist.client.SwaplistConfig.createAndLoad();
@@ -107,6 +108,11 @@ public class SwaplistClient implements ClientModInitializer {
                     .then(ClientCommandManager.argument("newName", StringArgumentType.greedyString())
                             .executes(this::executeRename)));
 
+            dispatcher.register(ClientCommandManager.literal("save")
+                    .then(ClientCommandManager.argument("index", IntegerArgumentType.integer())
+                            .then(ClientCommandManager.argument("templateName", StringArgumentType.greedyString())
+                                    .executes(this::executeSave))));
+
         });
     }
 
@@ -191,6 +197,19 @@ public class SwaplistClient implements ClientModInitializer {
         TodoList list = SwaplistConfigModel.getCurList();
         list.name = newName;
         SwaplistConfigModel.saveCurList(list);
+        return 1;
+    }
+
+    private int executeSave(CommandContext<FabricClientCommandSource> context) {
+        SwaplistConfigModel.sanitizeLists();
+        int index = IntegerArgumentType.getInteger(context, "index");
+        String templateName = StringArgumentType.getString(context, "templateName");
+
+        TodoList list = SwaplistConfigModel.getCurList();
+        var templates = new HashMap<>(SwaplistClient.CONFIG.templates());
+        templates.put(templateName, list);
+        SwaplistClient.CONFIG.templates(templates);
+
         return 1;
     }
 }

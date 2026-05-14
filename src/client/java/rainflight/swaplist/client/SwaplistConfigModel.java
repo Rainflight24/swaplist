@@ -6,7 +6,9 @@ import org.jspecify.annotations.NonNull;
 import rainflight.swaplist.Swaplist;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @SuppressWarnings("unused") // model class fields are not directly used
 @Modmenu(modId = Swaplist.MOD_ID)
@@ -37,6 +39,9 @@ public class SwaplistConfigModel {
     @Hook
     @ExcludeFromScreen
     public List<TodoList> lists = new ArrayList<>(List.of(new TodoList()));
+
+    @ExcludeFromScreen
+    public Map<String, TodoList> templates = new HashMap<String, TodoList>();
 
 //    @ExcludeFromScreen TODO: uncomment once done testing
     @Hook
