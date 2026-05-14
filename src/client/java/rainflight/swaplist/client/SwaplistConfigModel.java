@@ -41,7 +41,7 @@ public class SwaplistConfigModel {
     public List<TodoList> lists = new ArrayList<>(List.of(new TodoList()));
 
     @ExcludeFromScreen
-    public Map<String, TodoList> templates = new HashMap<String, TodoList>();
+    public Map<String, TodoList> templates = new HashMap<>();
 
 //    @ExcludeFromScreen TODO: uncomment once done testing
     @Hook
@@ -67,7 +67,7 @@ public class SwaplistConfigModel {
     }
 
     protected static void sanitizeLists() {
-        // Sanitization is performed here rather than with owo, so CONFIG.lists can be repaired.
+        // Sanitization is performed here to repair CONFIG.lists.
         if (SwaplistClient.CONFIG.lists().isEmpty()) {
             SwaplistClient.CONFIG.lists(new ArrayList<>(List.of(new TodoList())));
             Swaplist.LOGGER.warn("There are no lists, a default list has been added");
