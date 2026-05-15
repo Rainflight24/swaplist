@@ -28,7 +28,7 @@ public class HudDisplay {
     }
 
     /**
-     * Pulls relevant info from config and puts the current list on hud.
+     * Pulls relevant info from config and (re)puts the current list on hud, if it is already visible.
      */
     private void rebuild() {
         if (visible) {
@@ -40,7 +40,7 @@ public class HudDisplay {
 
             Hud.remove(id);
             Hud.add(id, () -> {
-                final TodoList curList = SwaplistConfigModel.getCurList();
+                final TodoList curList = ConfigUtils.getCurList();
                 final List<TodoList.ListItem> items = curList.items;
                 final int insetSize = 10;
 
@@ -49,7 +49,7 @@ public class HudDisplay {
                 // Label line wrapping requires manual width calculations.
                 fl.child(UIComponents.label(Component.literal(curList.name))
                         .color(color)
-                        .maxWidth(width - 2*insetSize));
+                        .maxWidth(width - 2 * insetSize));
 
                 for (TodoList.ListItem listItem : items) {
                     final Component c = Component.literal(listItem.text);
@@ -59,7 +59,7 @@ public class HudDisplay {
                     var checkbox = UIComponents.smallCheckbox(null);
                     checkbox.checked(listItem.toggled);
 
-                    var label = UIComponents.label(c).maxWidth(width - gap - 2*insetSize - checkboxSize).color(color); // TODO: make a better way of determining sizing besides subtracting a bunch of random numbers
+                    var label = UIComponents.label(c).maxWidth(width - gap - 2 * insetSize - checkboxSize).color(color);
                     fl.child(UIContainers.horizontalFlow(Sizing.content(), Sizing.content())
                             .child(checkbox)
                             .child(label)
@@ -86,7 +86,7 @@ public class HudDisplay {
      * @return ^
      */
     public int itemCount() {
-        return SwaplistConfigModel.getCurList().items.size();
+        return ConfigUtils.getCurList().items.size();
     }
 
     /**
@@ -95,45 +95,45 @@ public class HudDisplay {
      * @param line The text to display.
      */
     public void pushLine(String line) {
-        final TodoList list = SwaplistConfigModel.getCurList();
+        final TodoList list = ConfigUtils.getCurList();
         list.items.add(new TodoList.ListItem(line, false));
-        SwaplistConfigModel.saveCurList(list);
+        ConfigUtils.saveCurList(list);
     }
 
     /**
      * Removes the most recently added line of text.
      */
     public void popLine() {
-        final TodoList list = SwaplistConfigModel.getCurList();
+        final TodoList list = ConfigUtils.getCurList();
         if (!list.items.isEmpty()) {
             list.items.removeLast();
-            SwaplistConfigModel.saveCurList(list);
+            ConfigUtils.saveCurList(list);
         }
     }
 
     /**
      * Removes the nth line.
      *
-     * @param idx The one-indexed index to remove.
+     * @param idx The zero-indexed index to remove.
      */
     public void removeLine(int idx) {
-        final TodoList list = SwaplistConfigModel.getCurList();
-        if (idx >= 1 && idx <= list.items.size()) {
-            list.items.remove(idx - 1);
-            SwaplistConfigModel.saveCurList(list);
+        final TodoList list = ConfigUtils.getCurList();
+        if (idx >= 0 && idx <= list.items.size() - 1) {
+            list.items.remove(idx);
+            ConfigUtils.saveCurList(list);
         }
     }
 
     /**
      * Toggles the nth checkbox.
      *
-     * @param idx The one-indexed index to toggle.
+     * @param idx The zero-indexed index to toggle.
      */
     public void toggleLine(int idx) {
-        final TodoList list = SwaplistConfigModel.getCurList();
-        TodoList.ListItem old = list.items.get(idx - 1);
-        list.items.set(idx - 1, new TodoList.ListItem(old.text, !old.toggled));
-        SwaplistConfigModel.saveCurList(list);
+        final TodoList list = ConfigUtils.getCurList();
+        TodoList.ListItem old = list.items.get(idx);
+        list.items.set(idx, new TodoList.ListItem(old.text, !old.toggled));
+        ConfigUtils.saveCurList(list);
     }
 
     public boolean isVisible() {

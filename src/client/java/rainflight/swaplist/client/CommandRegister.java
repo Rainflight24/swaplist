@@ -10,6 +10,7 @@ import net.minecraft.network.chat.Component;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Optional;
 
 import static rainflight.swaplist.client.SwaplistClient.hudDisplay;
 
@@ -37,14 +38,16 @@ public class CommandRegister {
 
             dispatcher.register(ClientCommandManager.literal("toggle")
                     .then(ClientCommandManager.argument("index", IntegerArgumentType.integer())
+                            .suggests(new ListIndexSuggestionProvider())
                             .executes(CommandRegister::executeToggle)));
 
             dispatcher.register(ClientCommandManager.literal("remove")
                     .then(ClientCommandManager.argument("index", IntegerArgumentType.integer())
+                            .suggests(new ListIndexSuggestionProvider())
                             .executes(CommandRegister::executeRemove)));
 
             dispatcher.register(ClientCommandManager.literal("width")
-                    .then(ClientCommandManager.argument("newWidth", IntegerArgumentType.integer(100))
+                    .then(ClientCommandManager.argument("new_width", IntegerArgumentType.integer(100))
                             .executes(CommandRegister::executeWidth))
                     .executes(CommandRegister::executeShowWidth));
 
@@ -52,19 +55,26 @@ public class CommandRegister {
                     .executes(CommandRegister::executeNew));
 
             dispatcher.register(ClientCommandManager.literal("swap") // TODO: make a ArgumentType with cap = size
-                    .then(ClientCommandManager.argument("index", IntegerArgumentType.integer(1))
+                    .then(ClientCommandManager.argument("list_name", StringArgumentType.greedyString())
+                            .suggests(new ListSuggestionProvider())
                             .executes(CommandRegister::executeSwap)));
 
             dispatcher.register(ClientCommandManager.literal("rename")
-                    .then(ClientCommandManager.argument("newName", StringArgumentType.greedyString())
+                    .then(ClientCommandManager.argument("new_name", StringArgumentType.greedyString())
                             .executes(CommandRegister::executeRename)));
 
             dispatcher.register(ClientCommandManager.literal("save")
-                    .then(ClientCommandManager.argument("index", IntegerArgumentType.integer())
-                            .then(ClientCommandManager.argument("templateName", StringArgumentType.greedyString())
-                                    .executes(CommandRegister::executeSave))));
+                    .then(ClientCommandManager.argument("template_name", StringArgumentType.string())
+                            .executes(CommandRegister::executeSave)));
 
+            dispatcher.register(ClientCommandManager.literal("delete")
+                    .executes(context -> executeDelete(context, SwaplistClient.CONFIG.curActiveList()))
+                    .then(ClientCommandManager.argument("to_delete", StringArgumentType.greedyString())
+                            .suggests(new ListSuggestionProvider())
+                            .executes(context ->
+                                    executeDelete(context, StringArgumentType.getString(context, "to_delete")))));
         });
+
     }
 
     private static int executeAdd(CommandContext<FabricClientCommandSource> context) {
@@ -78,26 +88,44 @@ public class CommandRegister {
         return 1;
     }
 
-    private static int executeRemove(CommandContext<FabricClientCommandSource> context) {
+    /**
+     * Takes a index from user input. Indices may be negative for wraparound indices. Error messages are sent with list
+     * indices out of range, and Optional.empty() is returned in this case.
+     *
+     * @param context The command context in question.
+     * @return The user's intended index, zero-indexed.
+     */
+    private static Optional<Integer> handleListIndex(CommandContext<FabricClientCommandSource> context) {
         int idx = IntegerArgumentType.getInteger(context, "index");
-        if (idx >= 1 && idx <= hudDisplay.itemCount()) {
-            hudDisplay.removeLine(idx);
+        int size = hudDisplay.itemCount();
+        if (idx >= 1 && idx <= size) {
+            return Optional.of(idx - 1);
+        } else if (idx <= -1 && idx >= -size) {
+            return Optional.of(size + idx);
+        } else {
+            context.getSource().sendError(Component.literal(
+                    "Index %1$d is out of range. Must be between 1 and %2$d (the length of the list), or -%2$d and -1."
+                            .formatted(idx, hudDisplay.itemCount())));
+            return Optional.empty();
+        }
+    }
+
+    private static int executeRemove(CommandContext<FabricClientCommandSource> context) {
+        Optional<Integer> idx = handleListIndex(context);
+        if (idx.isPresent()) {
+            hudDisplay.removeLine(idx.get());
             return 1;
         } else {
-            context.getSource().sendError(Component.literal("Index %d must be between 1 and the length of the list, %d."
-                    .formatted(idx, hudDisplay.itemCount())));
             return -1;
         }
     }
 
     private static int executeToggle(CommandContext<FabricClientCommandSource> context) {
-        int idx = IntegerArgumentType.getInteger(context, "index");
-        if (idx >= 1 && idx <= hudDisplay.itemCount()) {
-            hudDisplay.toggleLine(idx);
+        Optional<Integer> idx = handleListIndex(context);
+        if (idx.isPresent()) {
+            hudDisplay.toggleLine(idx.get());
             return 1;
         } else {
-            context.getSource().sendError(Component.literal("Index %d must be between 1 and the length of the list, %d."
-                    .formatted(idx, hudDisplay.itemCount())));
             return -1;
         }
     }
@@ -116,47 +144,56 @@ public class CommandRegister {
         return 1;
     }
 
-    private static int executeNew(CommandContext<FabricClientCommandSource> context) {
-        // Create a new TodoList.
-        SwaplistConfigModel.sanitizeLists();
-        var l = new ArrayList<>(SwaplistClient.CONFIG.lists());
-        l.add(new TodoList());
-        SwaplistClient.CONFIG.lists(l);
 
-        // Also change the active list.
-        SwaplistClient.CONFIG.curActiveList(l.size());
+    private static int executeNew(CommandContext<FabricClientCommandSource> context) {
+        String key = ConfigUtils.uniqueListKey();
+        var map = new HashMap<>(SwaplistClient.CONFIG.lists());
+        map.put(key, new TodoList(key, new ArrayList<>()));
+        SwaplistClient.CONFIG.lists(map);
+        SwaplistClient.CONFIG.curActiveList(key);
+
         return 1;
     }
 
     private static int executeSwap(CommandContext<FabricClientCommandSource> context) {
-        SwaplistConfigModel.sanitizeLists();
-        int index = IntegerArgumentType.getInteger(context, "index");
+        String name = StringArgumentType.getString(context, "list_name");
 
-        if (index >= 1 && index <= SwaplistClient.CONFIG.lists().size()) {
-            SwaplistClient.CONFIG.curActiveList(index);
+        if (SwaplistClient.CONFIG.lists().containsKey(name)) {
+            SwaplistClient.CONFIG.curActiveList(name);
             return 1;
+        } else {
+            context.getSource().sendError(Component.literal("Provided list (%s) does not exist".formatted(name)));
+            return -1;
         }
-
-        context.getSource().sendError(Component.literal("Index %d must be between 1 and the number of lists, %d."
-                .formatted(index, SwaplistClient.CONFIG.lists().size())));
-        return -1;
     }
 
     private static int executeRename(CommandContext<FabricClientCommandSource> context) {
-        SwaplistConfigModel.sanitizeLists();
-        String newName = StringArgumentType.getString(context, "newName");
-        TodoList list = SwaplistConfigModel.getCurList();
+        String newName = StringArgumentType.getString(context, "new_name");
+        TodoList list = ConfigUtils.getCurList();
         list.name = newName;
-        SwaplistConfigModel.saveCurList(list);
+        ConfigUtils.saveCurList(list);
         return 1;
     }
 
-    private static int executeSave(CommandContext<FabricClientCommandSource> context) {
-        SwaplistConfigModel.sanitizeLists();
-        int index = IntegerArgumentType.getInteger(context, "index");
-        String templateName = StringArgumentType.getString(context, "templateName");
+    private static int executeDelete(CommandContext<FabricClientCommandSource> context, String toDelete) {
+        var lists = new HashMap<>(SwaplistClient.CONFIG.lists());
 
-        TodoList list = SwaplistConfigModel.getCurList();
+        if (lists.containsKey(toDelete)) {
+            lists.remove(toDelete);
+            SwaplistClient.CONFIG.lists(lists);
+            SwaplistClient.CONFIG.curActiveList(ConfigUtils.getFirstList());
+            return 1;
+        } else {
+            context.getSource().sendError(Component.literal("Provided list (%s) does not exist".formatted(toDelete)));
+            return -1;
+        }
+    }
+
+
+    private static int executeSave(CommandContext<FabricClientCommandSource> context) {
+        String templateName = StringArgumentType.getString(context, "template_name");
+
+        TodoList list = ConfigUtils.getCurList();
         var templates = new HashMap<>(SwaplistClient.CONFIG.templates());
         templates.put(templateName, list);
         SwaplistClient.CONFIG.templates(templates);
