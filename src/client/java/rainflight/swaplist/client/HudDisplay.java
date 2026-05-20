@@ -5,32 +5,45 @@ import io.wispforest.owo.ui.container.FlowLayout;
 import io.wispforest.owo.ui.container.UIContainers;
 import io.wispforest.owo.ui.core.*;
 import io.wispforest.owo.ui.hud.Hud;
+import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
+import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 
 import java.util.List;
+import java.util.function.Consumer;
 
 public class HudDisplay {
-    final Identifier id;
+    final private Identifier id;
     private boolean visible = true;
+    private boolean needsRebuild = true;
 
     public HudDisplay(Identifier id) {
-        SwaplistClient.CONFIG.subscribeToListWidth(t -> rebuild());
-        SwaplistClient.CONFIG.subscribeToListHeight(t -> rebuild());
-        SwaplistClient.CONFIG.subscribeToListHorizontalPos(t -> rebuild());
-        SwaplistClient.CONFIG.subscribeToListVerticalPos(t -> rebuild());
-        SwaplistClient.CONFIG.subscribeToListColor(t -> rebuild());
-        SwaplistClient.CONFIG.subscribeToLists(t -> rebuild());
-        SwaplistClient.CONFIG.subscribeToCurActiveList(t -> rebuild());
-
         this.id = id;
-        rebuild();
+
+        ClientTickEvents.END_CLIENT_TICK.register(client -> {
+            if (needsRebuild) {
+                needsRebuild = false;
+                rebuild();
+            }
+        });
+
+        Consumer<Integer> intConsumer = _unused -> needsRebuild = true;
+        Consumer<String> stringConsumer = _unused -> needsRebuild = true;
+
+        SwaplistClient.CONFIG.subscribeToListWidth(intConsumer);
+        SwaplistClient.CONFIG.subscribeToListHeight(intConsumer);
+        SwaplistClient.CONFIG.subscribeToListHorizontalPos(intConsumer);
+        SwaplistClient.CONFIG.subscribeToListVerticalPos(intConsumer);
+        SwaplistClient.CONFIG.subscribeToCurActiveList(stringConsumer);
+        SwaplistClient.CONFIG.subscribeToListColor(t -> needsRebuild = true);
+        SwaplistClient.CONFIG.subscribeToLists(t -> needsRebuild = true);
     }
 
     /**
      * Pulls relevant info from config and (re)puts the current list on hud, if it is already visible.
      */
-    private void rebuild() {
+    void rebuild() {
         if (visible) {
             final int hPos = SwaplistClient.CONFIG.listHorizontalPos();
             final int vPos = SwaplistClient.CONFIG.listVerticalPos();
