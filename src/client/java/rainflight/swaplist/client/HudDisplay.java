@@ -45,48 +45,52 @@ public class HudDisplay {
      */
     void rebuild() {
         if (visible) {
-            final int hPos = SwaplistClient.CONFIG.listHorizontalPos();
-            final int vPos = SwaplistClient.CONFIG.listVerticalPos();
-            final int width = SwaplistClient.CONFIG.listWidth();
-            final int height = SwaplistClient.CONFIG.listHeight();
-            final Color color = SwaplistClient.CONFIG.listColor();
-
             Hud.remove(id);
             Hud.add(id, () -> {
+                final int hPos = SwaplistClient.CONFIG.listHorizontalPos();
+                final int vPos = SwaplistClient.CONFIG.listVerticalPos();
+                final int width = SwaplistClient.CONFIG.listWidth();
+                final int height = SwaplistClient.CONFIG.listHeight();
+                final Color color = SwaplistClient.CONFIG.listColor();
+
                 final TodoList curList = ConfigUtils.getCurList();
                 final List<TodoList.ListItem> items = curList.items;
                 final int insetSize = 10;
 
-                final FlowLayout fl = UIContainers.verticalFlow(Sizing.fixed(width), Sizing.content())
+                final FlowLayout layout = UIContainers.verticalFlow(Sizing.fixed(width), Sizing.content())
                         .gap(3);
                 // Label line wrapping requires manual width calculations.
-                fl.child(UIComponents.label(Component.literal(curList.name))
+                layout.child(UIComponents.label(Component.literal(curList.name))
                         .color(color)
                         .maxWidth(width - 2 * insetSize));
 
                 for (TodoList.ListItem listItem : items) {
+                    // Create each row of the list.
                     final Component c = Component.literal(listItem.text);
 
                     final int gap = 5;
-                    final int checkboxSize = 13; // TODO: is this really the best way of determining the checkbox's size
+                    final int checkboxSize = 13; // TODO: dynamically determine checkbox size
+
+                    // Hack which ignores SmallCheckboxComponent's text field, as it does not support line wrapping.
                     var checkbox = UIComponents.smallCheckbox(null);
                     checkbox.checked(listItem.toggled);
 
+                    // Instead use a label for line wraps. Needs to manually compute width.
                     var label = UIComponents.label(c).maxWidth(width - gap - 2 * insetSize - checkboxSize).color(color);
-                    fl.child(UIContainers.horizontalFlow(Sizing.content(), Sizing.content())
+                    layout.child(UIContainers.horizontalFlow(Sizing.content(), Sizing.content())
                             .child(checkbox)
                             .child(label)
                             .gap(gap)
                             .verticalAlignment(VerticalAlignment.CENTER));
                 }
 
-                fl.positioning(Positioning.absolute(hPos, vPos))
+                layout.positioning(Positioning.absolute(hPos, vPos))
                         .padding(Insets.of(insetSize))
                         .surface(Surface.BLANK)
                         .horizontalAlignment(HorizontalAlignment.LEFT)
                         .verticalAlignment(VerticalAlignment.TOP);
 
-                return fl;
+                return layout;
             });
         } else {
             Hud.remove(id);
@@ -131,7 +135,7 @@ public class HudDisplay {
      */
     public void removeLine(int idx) {
         final TodoList list = ConfigUtils.getCurList();
-        if (idx >= 0 && idx <= list.items.size() - 1) {
+        if (idx >= 0 && idx < list.items.size()) {
             list.items.remove(idx);
             ConfigUtils.saveCurList(list);
         }
@@ -144,9 +148,11 @@ public class HudDisplay {
      */
     public void toggleLine(int idx) {
         final TodoList list = ConfigUtils.getCurList();
-        TodoList.ListItem old = list.items.get(idx);
-        list.items.set(idx, new TodoList.ListItem(old.text, !old.toggled));
-        ConfigUtils.saveCurList(list);
+        if (idx >= 0 && idx < list.items.size()) {
+            TodoList.ListItem old = list.items.get(idx);
+            list.items.set(idx, new TodoList.ListItem(old.text, !old.toggled));
+            ConfigUtils.saveCurList(list);
+        }
     }
 
     public boolean isVisible() {
