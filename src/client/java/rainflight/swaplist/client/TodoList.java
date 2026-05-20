@@ -9,7 +9,7 @@ import java.util.List;
 public class TodoList {
 
     public String name;
-    public List<ListItem> items;
+    public final List<ListItem> items;
 
     public TodoList() {
         this.name = "Todo List";
