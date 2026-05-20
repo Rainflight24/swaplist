@@ -10,8 +10,10 @@ import net.minecraft.network.chat.Component;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
+import static rainflight.swaplist.client.SwaplistClient.CONFIG;
 import static rainflight.swaplist.client.SwaplistClient.hudDisplay;
 
 public class CommandRegister {
@@ -169,9 +171,17 @@ public class CommandRegister {
 
     private static int executeRename(CommandContext<FabricClientCommandSource> context) {
         String newName = StringArgumentType.getString(context, "new_name");
+        final Map<String, TodoList> lists = new HashMap<>(SwaplistClient.CONFIG.lists());
         TodoList list = ConfigUtils.getCurList();
+
+        lists.remove(list.name);
+
         list.name = newName;
-        ConfigUtils.saveCurList(list);
+        lists.put(newName, list);
+
+        SwaplistClient.CONFIG.lists(lists);
+        CONFIG.curActiveList(newName);
+
         return 1;
     }
 

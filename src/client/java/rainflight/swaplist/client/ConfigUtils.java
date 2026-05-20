@@ -52,9 +52,8 @@ final public class ConfigUtils {
      * @param list The todolist to save.
      */
     public static void saveCurList(final TodoList list) {
-        String curActiveList = SwaplistClient.CONFIG.curActiveList();
         final Map<String, TodoList> lists = new HashMap<>(SwaplistClient.CONFIG.lists());
-        lists.put(curActiveList, list);
+        lists.put(list.name, list);
         SwaplistClient.CONFIG.lists(lists);
     }
 
