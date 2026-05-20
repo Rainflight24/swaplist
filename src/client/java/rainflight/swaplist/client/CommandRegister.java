@@ -56,7 +56,7 @@ public class CommandRegister {
             dispatcher.register(ClientCommandManager.literal("new")
                     .executes(CommandRegister::executeNew));
 
-            dispatcher.register(ClientCommandManager.literal("swap") // TODO: make a ArgumentType with cap = size
+            dispatcher.register(ClientCommandManager.literal("swap")
                     .then(ClientCommandManager.argument("list_name", StringArgumentType.greedyString())
                             .suggests(new ListSuggestionProvider())
                             .executes(CommandRegister::executeSwap)));
@@ -91,7 +91,7 @@ public class CommandRegister {
     }
 
     /**
-     * Takes a index from user input. Indices may be negative for wraparound indices. Error messages are sent with list
+     * Takes an index from user input. Indices may be negative for wraparound indices. Error messages are sent with list
      * indices out of range, and Optional.empty() is returned in this case.
      *
      * @param context The command context in question.
