@@ -5,7 +5,12 @@ import rainflight.swaplist.Swaplist;
 
 import java.util.*;
 
-final public class ConfigUtils {
+import static rainflight.swaplist.client.SwaplistClient.CONFIG;
+
+/**
+ * Utility class holding operations on config.
+ */
+final class ConfigUtils {
     private ConfigUtils() {
     }
 
@@ -23,9 +28,9 @@ final public class ConfigUtils {
         };
     }
 
-    public static @NonNull String uniqueListKey() {
-        var map = SwaplistClient.CONFIG.lists();
-        return ConfigUtils.uniqueKey(SwaplistClient.CONFIG.defaultListSuffix(), map.keySet());
+    static @NonNull String uniqueListKey() {
+        var map = CONFIG.lists();
+        return ConfigUtils.uniqueKey(CONFIG.defaultListSuffix(), map.keySet());
     }
 
     /**
@@ -47,14 +52,24 @@ final public class ConfigUtils {
     }
 
     /**
+     * Checks if a list exists.
+     *
+     * @param key The key of the list to check existence for.
+     * @return Whether the list exists.
+     */
+    static boolean isListExistent(String key) {
+        return CONFIG.lists().containsKey(key);
+    }
+
+    /**
      * Saves the provided todolist to config, while replacing the currently active list.
      *
      * @param list The todolist to save.
      */
-    public static void saveCurList(final TodoList list) {
-        final Map<String, TodoList> lists = new HashMap<>(SwaplistClient.CONFIG.lists());
+    static void saveCurList(final TodoList list) {
+        final Map<String, TodoList> lists = new HashMap<>(CONFIG.lists());
         lists.put(list.name, list);
-        SwaplistClient.CONFIG.lists(lists);
+        CONFIG.lists(lists);
     }
 
     /**
@@ -62,9 +77,9 @@ final public class ConfigUtils {
      *
      * @return A copy of the current TodoList.
      */
-    public static @NonNull TodoList getCurList() {
-        Map<String, TodoList> lists = SwaplistClient.CONFIG.lists();
-        String curKey = SwaplistClient.CONFIG.curActiveList();
+    static @NonNull TodoList getCurList() {
+        Map<String, TodoList> lists = CONFIG.lists();
+        String curKey = CONFIG.curActiveList();
         TodoList oldList = lists.get(curKey);
 
         if (oldList == null) {
@@ -78,7 +93,7 @@ final public class ConfigUtils {
                 key = getFirstList();
             }
             Swaplist.LOGGER.warn("Instead loading list {}.", key);
-            SwaplistClient.CONFIG.curActiveList(key);
+            setActiveList(key);
 
             return new TodoList(lists.get(key));
         }
@@ -91,8 +106,8 @@ final public class ConfigUtils {
      *
      * @return The lexicographically first key.
      */
-    public static @NonNull String getFirstList() {
-        SortedMap<String, TodoList> lists = new TreeMap<>(SwaplistClient.CONFIG.lists());
+    static @NonNull String getFirstList() {
+        SortedMap<String, TodoList> lists = new TreeMap<>(CONFIG.lists());
         return lists.keySet().stream().findFirst().or(() -> Optional.of(newList())).get();
     }
 
@@ -101,13 +116,142 @@ final public class ConfigUtils {
      *
      * @return The key of the created list. It will end with the defaultListSuffix.
      */
-    public static @NonNull String newList() {
-        Map<String, TodoList> lists = SwaplistClient.CONFIG.lists();
-        String key;
-        key = uniqueListKey();
+    static @NonNull String newList() {
+        Map<String, TodoList> lists = CONFIG.lists();
+        String key = uniqueListKey();
 
         lists.put(key, new TodoList(key, new ArrayList<>()));
-        SwaplistClient.CONFIG.lists(new HashMap<>(lists));
+        CONFIG.lists(new HashMap<>(lists));
         return key;
+    }
+
+    /**
+     * Deletes the given list from config.
+     *
+     * @param toDelete The key of the list to delete.
+     * @return Whether the given list was successfully deleted.
+     */
+    static boolean deleteList(String toDelete) {
+        var lists = new HashMap<>(CONFIG.lists());
+
+        if (lists.containsKey(toDelete)) {
+            lists.remove(toDelete);
+            CONFIG.lists(lists);
+            setActiveList(getFirstList());
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Renames the current list's title, and updates its key.
+     *
+     * @param newName The current list's new name.
+     */
+    static void renameCurrent(String newName) {
+        final Map<String, TodoList> lists = new HashMap<>(CONFIG.lists());
+        TodoList list = getCurList();
+
+        if (lists.containsKey(newName)) {
+            Swaplist.LOGGER.warn("Ignored attempt at overwriting list {} during a rename.", newName);
+            return;
+        }
+
+        lists.remove(list.name);
+
+        list.name = newName;
+        lists.put(newName, list);
+
+        CONFIG.lists(lists);
+        setActiveList(newName);
+    }
+
+    /**
+     * Adds a line of text to the displayed list.
+     *
+     * @param line The text to display.
+     */
+    static void pushLine(String line) {
+        final TodoList list = getCurList();
+        list.items.add(new TodoList.ListItem(line, false));
+        saveCurList(list);
+    }
+
+    /**
+     * Removes the most recently added line of text.
+     */
+    static void popLine() {
+        final TodoList list = getCurList();
+        if (!list.items.isEmpty()) {
+            list.items.removeLast();
+            saveCurList(list);
+        }
+    }
+
+    /**
+     * Removes the nth line.
+     *
+     * @param idx The zero-indexed index to remove.
+     */
+    static void removeLine(int idx) {
+        final TodoList list = getCurList();
+        if (idx >= 0 && idx < list.items.size()) {
+            list.items.remove(idx);
+            saveCurList(list);
+        }
+    }
+
+    /**
+     * Toggles the nth checkbox.
+     *
+     * @param idx The zero-indexed index to toggle.
+     */
+    static void toggleLine(int idx) {
+        final TodoList list = getCurList();
+        if (idx >= 0 && idx < list.items.size()) {
+            TodoList.ListItem old = list.items.get(idx);
+            list.items.set(idx, new TodoList.ListItem(old.text, !old.toggled));
+            saveCurList(list);
+        }
+    }
+
+    /**
+     * Changes the currently active list.
+     *
+     * @param key The key of the newly active list.
+     */
+    static void setActiveList(String key) {
+        if (CONFIG.lists().containsKey(key)) {
+            CONFIG.curActiveList(key);
+        } else {
+            Swaplist.LOGGER.warn("Attempted to set active list to nonexistent key {}.", key);
+        }
+    }
+
+    /**
+     * Swaps the currently active list with a different one.
+     *
+     * @param key The list to set as active.
+     * @return Whether the swap was successful.
+     */
+    static boolean swap(String key) {
+        if (CONFIG.lists().containsKey(key)) {
+            ConfigUtils.setActiveList(key);
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * Saves the current list as a template with key templateName.
+     *
+     * @param templateName The key of the newly saved template.
+     */
+    static void saveCurAsTemplate(String templateName) {
+        TodoList list = getCurList();
+        var templates = new HashMap<>(CONFIG.templates());
+        templates.put(templateName, list);
+        CONFIG.templates(templates);
     }
 }

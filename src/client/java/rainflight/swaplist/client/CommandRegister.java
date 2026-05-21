@@ -8,12 +8,8 @@ import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallba
 import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
 import net.minecraft.network.chat.Component;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Optional;
 
-import static rainflight.swaplist.client.SwaplistClient.CONFIG;
 import static rainflight.swaplist.client.SwaplistClient.hudDisplay;
 
 public class CommandRegister {
@@ -81,12 +77,12 @@ public class CommandRegister {
 
     private static int executeAdd(CommandContext<FabricClientCommandSource> context) {
         String value1 = StringArgumentType.getString(context, "desc");
-        hudDisplay.pushLine(value1);
+        ConfigUtils.pushLine(value1);
         return 1;
     }
 
     private static int executePop(CommandContext<FabricClientCommandSource> context) {
-        hudDisplay.popLine();
+        ConfigUtils.popLine();
         return 1;
     }
 
@@ -115,7 +111,7 @@ public class CommandRegister {
     private static int executeRemove(CommandContext<FabricClientCommandSource> context) {
         Optional<Integer> idx = handleListIndex(context);
         if (idx.isPresent()) {
-            hudDisplay.removeLine(idx.get());
+            ConfigUtils.removeLine(idx.get());
             return 1;
         } else {
             return -1;
@@ -125,7 +121,7 @@ public class CommandRegister {
     private static int executeToggle(CommandContext<FabricClientCommandSource> context) {
         Optional<Integer> idx = handleListIndex(context);
         if (idx.isPresent()) {
-            hudDisplay.toggleLine(idx.get());
+            ConfigUtils.toggleLine(idx.get());
             return 1;
         } else {
             return -1;
@@ -139,7 +135,7 @@ public class CommandRegister {
     }
 
     private static int executeWidth(CommandContext<FabricClientCommandSource> context) {
-        int width = IntegerArgumentType.getInteger(context, "newWidth");
+        int width = IntegerArgumentType.getInteger(context, "new_width");
         SwaplistClient.CONFIG.listWidth(width);
         context.getSource().sendFeedback(Component.literal("Set width to: %d pixels."
                 .formatted(width)));
@@ -148,50 +144,40 @@ public class CommandRegister {
 
 
     private static int executeNew(CommandContext<FabricClientCommandSource> context) {
-        String key = ConfigUtils.uniqueListKey();
-        var map = new HashMap<>(SwaplistClient.CONFIG.lists());
-        map.put(key, new TodoList(key, new ArrayList<>()));
-        SwaplistClient.CONFIG.lists(map);
-        SwaplistClient.CONFIG.curActiveList(key);
+        String key = ConfigUtils.newList();
+        ConfigUtils.setActiveList(key);
 
         return 1;
     }
 
     private static int executeSwap(CommandContext<FabricClientCommandSource> context) {
-        String name = StringArgumentType.getString(context, "list_name");
+        String key = StringArgumentType.getString(context, "list_name");
 
-        if (SwaplistClient.CONFIG.lists().containsKey(name)) {
-            SwaplistClient.CONFIG.curActiveList(name);
+        boolean success = ConfigUtils.swap(key);
+        if (success) {
             return 1;
         } else {
-            context.getSource().sendError(Component.literal("Provided list (%s) does not exist".formatted(name)));
+            context.getSource().sendError(Component.literal("Provided list (%s) does not exist".formatted(key)));
             return -1;
         }
     }
 
     private static int executeRename(CommandContext<FabricClientCommandSource> context) {
         String newName = StringArgumentType.getString(context, "new_name");
-        final Map<String, TodoList> lists = new HashMap<>(SwaplistClient.CONFIG.lists());
-        TodoList list = ConfigUtils.getCurList();
 
-        lists.remove(list.name);
-
-        list.name = newName;
-        lists.put(newName, list);
-
-        SwaplistClient.CONFIG.lists(lists);
-        CONFIG.curActiveList(newName);
+        if (ConfigUtils.isListExistent(newName)) {
+            context.getSource().sendError(Component.literal(
+                    "Rename cancelled: attempted to overwrite existing list. Consider first using /delete %s."
+                            .formatted(newName)));
+        }
+        ConfigUtils.renameCurrent(newName);
 
         return 1;
     }
 
     private static int executeDelete(CommandContext<FabricClientCommandSource> context, String toDelete) {
-        var lists = new HashMap<>(SwaplistClient.CONFIG.lists());
-
-        if (lists.containsKey(toDelete)) {
-            lists.remove(toDelete);
-            SwaplistClient.CONFIG.lists(lists);
-            SwaplistClient.CONFIG.curActiveList(ConfigUtils.getFirstList());
+        boolean success = ConfigUtils.deleteList(toDelete);
+        if (success) {
             return 1;
         } else {
             context.getSource().sendError(Component.literal("Provided list (%s) does not exist".formatted(toDelete)));
@@ -199,15 +185,10 @@ public class CommandRegister {
         }
     }
 
-
     private static int executeSave(CommandContext<FabricClientCommandSource> context) {
         String templateName = StringArgumentType.getString(context, "template_name");
-
-        TodoList list = ConfigUtils.getCurList();
-        var templates = new HashMap<>(SwaplistClient.CONFIG.templates());
-        templates.put(templateName, list);
-        SwaplistClient.CONFIG.templates(templates);
-
+        ConfigUtils.saveCurAsTemplate(templateName);
         return 1;
     }
+
 }

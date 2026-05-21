@@ -39,58 +39,63 @@ public class HudDisplay {
         SwaplistClient.CONFIG.subscribeToLists(t -> needsRebuild = true);
     }
 
+    private static UIComponent makeLayout() {
+        final int hPos = SwaplistClient.CONFIG.listHorizontalPos();
+        final int vPos = SwaplistClient.CONFIG.listVerticalPos();
+        final int width = SwaplistClient.CONFIG.listWidth();
+        final int height = SwaplistClient.CONFIG.listHeight();
+        final Color color = SwaplistClient.CONFIG.listColor();
+
+        final TodoList curList = ConfigUtils.getCurList();
+        final List<TodoList.ListItem> items = curList.items;
+        final int insetSize = 10;
+
+        final int layoutGap = 3;
+
+        final FlowLayout layout = UIContainers.verticalFlow(Sizing.fixed(width), Sizing.content())
+                .gap(layoutGap);
+
+        // Label line wrapping requires manual width calculations.
+        layout.child(UIComponents.label(Component.literal(curList.name))
+                .color(color)
+                .maxWidth(width - 2 * insetSize));
+
+        for (TodoList.ListItem listItem : items) {
+            // Create each row of the list.
+            final Component c = Component.literal(listItem.text);
+
+            final int gap = 5;
+            final int checkboxSize = 13; // TODO: dynamically determine checkbox size
+
+            // Hack which ignores SmallCheckboxComponent's text field, as it does not support line wrapping.
+            var checkbox = UIComponents.smallCheckbox(null);
+            checkbox.checked(listItem.toggled);
+
+            // Instead use a label for line wraps. Needs to manually compute width.
+            var label = UIComponents.label(c).maxWidth(width - gap - 2 * insetSize - checkboxSize).color(color);
+            layout.child(UIContainers.horizontalFlow(Sizing.content(), Sizing.content())
+                    .child(checkbox)
+                    .child(label)
+                    .gap(gap)
+                    .verticalAlignment(VerticalAlignment.CENTER));
+        }
+
+        layout.positioning(Positioning.absolute(hPos, vPos))
+                .padding(Insets.of(insetSize))
+                .surface(Surface.BLANK)
+                .horizontalAlignment(HorizontalAlignment.LEFT)
+                .verticalAlignment(VerticalAlignment.TOP);
+
+        return layout;
+    }
+
     /**
      * Pulls relevant info from config and (re)puts the current list on hud, if it is already visible.
      */
     void rebuild() {
         if (visible) {
             Hud.remove(id);
-            Hud.add(id, () -> {
-                final int hPos = SwaplistClient.CONFIG.listHorizontalPos();
-                final int vPos = SwaplistClient.CONFIG.listVerticalPos();
-                final int width = SwaplistClient.CONFIG.listWidth();
-                final int height = SwaplistClient.CONFIG.listHeight();
-                final Color color = SwaplistClient.CONFIG.listColor();
-
-                final TodoList curList = ConfigUtils.getCurList();
-                final List<TodoList.ListItem> items = curList.items;
-                final int insetSize = 10;
-
-                final FlowLayout layout = UIContainers.verticalFlow(Sizing.fixed(width), Sizing.content())
-                        .gap(3);
-                // Label line wrapping requires manual width calculations.
-                layout.child(UIComponents.label(Component.literal(curList.name))
-                        .color(color)
-                        .maxWidth(width - 2 * insetSize));
-
-                for (TodoList.ListItem listItem : items) {
-                    // Create each row of the list.
-                    final Component c = Component.literal(listItem.text);
-
-                    final int gap = 5;
-                    final int checkboxSize = 13; // TODO: dynamically determine checkbox size
-
-                    // Hack which ignores SmallCheckboxComponent's text field, as it does not support line wrapping.
-                    var checkbox = UIComponents.smallCheckbox(null);
-                    checkbox.checked(listItem.toggled);
-
-                    // Instead use a label for line wraps. Needs to manually compute width.
-                    var label = UIComponents.label(c).maxWidth(width - gap - 2 * insetSize - checkboxSize).color(color);
-                    layout.child(UIContainers.horizontalFlow(Sizing.content(), Sizing.content())
-                            .child(checkbox)
-                            .child(label)
-                            .gap(gap)
-                            .verticalAlignment(VerticalAlignment.CENTER));
-                }
-
-                layout.positioning(Positioning.absolute(hPos, vPos))
-                        .padding(Insets.of(insetSize))
-                        .surface(Surface.BLANK)
-                        .horizontalAlignment(HorizontalAlignment.LEFT)
-                        .verticalAlignment(VerticalAlignment.TOP);
-
-                return layout;
-            });
+            Hud.add(id, HudDisplay::makeLayout);
         } else {
             Hud.remove(id);
         }
@@ -103,55 +108,6 @@ public class HudDisplay {
      */
     public int itemCount() {
         return ConfigUtils.getCurList().items.size();
-    }
-
-    /**
-     * Adds a line of text to the displayed list.
-     *
-     * @param line The text to display.
-     */
-    public void pushLine(String line) {
-        final TodoList list = ConfigUtils.getCurList();
-        list.items.add(new TodoList.ListItem(line, false));
-        ConfigUtils.saveCurList(list);
-    }
-
-    /**
-     * Removes the most recently added line of text.
-     */
-    public void popLine() {
-        final TodoList list = ConfigUtils.getCurList();
-        if (!list.items.isEmpty()) {
-            list.items.removeLast();
-            ConfigUtils.saveCurList(list);
-        }
-    }
-
-    /**
-     * Removes the nth line.
-     *
-     * @param idx The zero-indexed index to remove.
-     */
-    public void removeLine(int idx) {
-        final TodoList list = ConfigUtils.getCurList();
-        if (idx >= 0 && idx < list.items.size()) {
-            list.items.remove(idx);
-            ConfigUtils.saveCurList(list);
-        }
-    }
-
-    /**
-     * Toggles the nth checkbox.
-     *
-     * @param idx The zero-indexed index to toggle.
-     */
-    public void toggleLine(int idx) {
-        final TodoList list = ConfigUtils.getCurList();
-        if (idx >= 0 && idx < list.items.size()) {
-            TodoList.ListItem old = list.items.get(idx);
-            list.items.set(idx, new TodoList.ListItem(old.text, !old.toggled));
-            ConfigUtils.saveCurList(list);
-        }
     }
 
     public boolean isVisible() {
