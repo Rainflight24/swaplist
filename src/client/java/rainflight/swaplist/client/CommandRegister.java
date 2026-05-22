@@ -169,6 +169,7 @@ public class CommandRegister {
             context.getSource().sendError(Component.literal(
                     "Rename cancelled: attempted to overwrite existing list. Consider first using /delete %s."
                             .formatted(newName)));
+            return -1;
         }
         ConfigUtils.renameCurrent(newName);
 
