@@ -153,8 +153,7 @@ public class CommandRegister {
     private static int executeSwap(CommandContext<FabricClientCommandSource> context) {
         String key = StringArgumentType.getString(context, "list_name");
 
-        boolean success = ConfigUtils.swap(key);
-        if (success) {
+        if (ConfigUtils.swap(key)) {
             return 1;
         } else {
             context.getSource().sendError(Component.literal("Provided list (%s) does not exist".formatted(key)));
@@ -165,20 +164,18 @@ public class CommandRegister {
     private static int executeRename(CommandContext<FabricClientCommandSource> context) {
         String newName = StringArgumentType.getString(context, "new_name");
 
-        if (ConfigUtils.isListExistent(newName)) {
+        if (!ConfigUtils.renameCurrent(newName)) {
             context.getSource().sendError(Component.literal(
                     "Rename cancelled: attempted to overwrite existing list. Consider first using /delete %s."
                             .formatted(newName)));
             return -1;
         }
-        ConfigUtils.renameCurrent(newName);
 
         return 1;
     }
 
     private static int executeDelete(CommandContext<FabricClientCommandSource> context, String toDelete) {
-        boolean success = ConfigUtils.deleteList(toDelete);
-        if (success) {
+        if (ConfigUtils.deleteList(toDelete)) {
             return 1;
         } else {
             context.getSource().sendError(Component.literal("Provided list (%s) does not exist".formatted(toDelete)));

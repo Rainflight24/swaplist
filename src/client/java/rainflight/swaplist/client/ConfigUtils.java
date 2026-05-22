@@ -146,14 +146,15 @@ final class ConfigUtils {
      * Renames the current list's title, and updates its key.
      *
      * @param newName The current list's new name.
+     * @return Whether the rename succeeded.
      */
-    static void renameCurrent(String newName) {
+    static boolean renameCurrent(String newName) {
         final Map<String, TodoList> lists = new HashMap<>(CONFIG.lists());
         TodoList list = getCurList();
 
         if (lists.containsKey(newName)) {
             Swaplist.LOGGER.warn("Ignored attempt at overwriting list {} during a rename.", newName);
-            return;
+            return false;
         }
 
         lists.remove(list.name);
@@ -163,6 +164,7 @@ final class ConfigUtils {
 
         CONFIG.lists(lists);
         setActiveList(newName);
+        return true;
     }
 
     /**
