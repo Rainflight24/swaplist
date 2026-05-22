@@ -12,6 +12,6 @@ public class Swaplist implements ModInitializer {
     @Override
     public void onInitialize() {
 
-        LOGGER.info(MOD_ID + " initialized");
+        LOGGER.info("{} initialized", MOD_ID);
     }
 }
