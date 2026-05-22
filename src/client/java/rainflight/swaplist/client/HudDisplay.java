@@ -10,6 +10,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 
 import java.util.List;
+import java.util.Map;
 import java.util.function.Consumer;
 
 public class HudDisplay {
@@ -29,14 +30,16 @@ public class HudDisplay {
 
         Consumer<Integer> intConsumer = _unused -> needsRebuild = true;
         Consumer<String> stringConsumer = _unused -> needsRebuild = true;
+        Consumer<Color> colorConsumer = _unused -> needsRebuild = true;
+        Consumer<Map<String, TodoList>> listsConsumer = _unused -> needsRebuild = true;
 
         SwaplistClient.CONFIG.subscribeToListWidth(intConsumer);
         SwaplistClient.CONFIG.subscribeToListHeight(intConsumer);
         SwaplistClient.CONFIG.subscribeToListHorizontalPos(intConsumer);
         SwaplistClient.CONFIG.subscribeToListVerticalPos(intConsumer);
         SwaplistClient.CONFIG.subscribeToCurActiveList(stringConsumer);
-        SwaplistClient.CONFIG.subscribeToListColor(t -> needsRebuild = true);
-        SwaplistClient.CONFIG.subscribeToLists(t -> needsRebuild = true);
+        SwaplistClient.CONFIG.subscribeToListColor(colorConsumer);
+        SwaplistClient.CONFIG.subscribeToLists(listsConsumer);
     }
 
     private static UIComponent makeLayout() {
@@ -44,7 +47,7 @@ public class HudDisplay {
         final int vPos = SwaplistClient.CONFIG.listVerticalPos();
         final int width = SwaplistClient.CONFIG.listWidth();
         final int height = SwaplistClient.CONFIG.listHeight();
-        final Color color = SwaplistClient.CONFIG.listColor();
+        final Color textColor = SwaplistClient.CONFIG.listColor();
 
         final TodoList curList = ConfigUtils.getCurList();
         final List<TodoList.ListItem> items = curList.items;
@@ -57,13 +60,10 @@ public class HudDisplay {
 
         // Label line wrapping requires manual width calculations.
         layout.child(UIComponents.label(Component.literal(curList.name))
-                .color(color)
+                .color(textColor)
                 .maxWidth(width - 2 * insetSize));
 
         for (TodoList.ListItem listItem : items) {
-            // Create each row of the list.
-            final Component c = Component.literal(listItem.text);
-
             final int gap = 5;
             final int checkboxSize = 13; // TODO: dynamically determine checkbox size
 
@@ -71,11 +71,17 @@ public class HudDisplay {
             var checkbox = UIComponents.smallCheckbox(null);
             checkbox.checked(listItem.toggled);
 
-            // Instead use a label for line wraps. Needs to manually compute width.
-            var label = UIComponents.label(c).maxWidth(width - gap - 2 * insetSize - checkboxSize).color(color);
+            final int textWidth = width - gap - 2 * insetSize - checkboxSize;
+
+            var textArea = new BackgroundlessTextAreaComponent.Builder()
+                    .setTextColor(textColor)
+                    .setShowBackground(false)
+                    .build(Sizing.fixed(textWidth), Sizing.fixed(BackgroundlessTextAreaComponent.computeHeight(listItem.text, textWidth)));
+            textArea.text(listItem.text);
+
             layout.child(UIContainers.horizontalFlow(Sizing.content(), Sizing.content())
                     .child(checkbox)
-                    .child(label)
+                    .child(textArea)
                     .gap(gap)
                     .verticalAlignment(VerticalAlignment.CENTER));
         }
