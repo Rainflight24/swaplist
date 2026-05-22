@@ -18,12 +18,11 @@ public class TodoList {
 
     public TodoList(String name, List<ListItem> items) {
         this.name = name;
-        this.items = items;
+        this.items = new ArrayList<>(items);
     }
 
     public TodoList(TodoList oldList) {
-        this.name = oldList.name;
-        this.items = oldList.items;
+        this(oldList.name, oldList.items);
     }
 
     final public static class ListItem {
