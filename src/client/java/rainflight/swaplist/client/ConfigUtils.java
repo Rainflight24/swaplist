@@ -43,10 +43,9 @@ final class ConfigUtils {
      */
     private static @NonNull String uniqueKey(String suffix, Set<String> set) {
         int i = 1;
-        String key = ordinal(i) + " " + suffix;
-        while (set.contains(ordinal(i) + " " + suffix)) {
+        String key;
+        while (set.contains(key = ordinal(i) + " " + suffix)) {
             i++;
-            key = ordinal(i) + " " + suffix;
         }
         return key;
     }
@@ -117,11 +116,11 @@ final class ConfigUtils {
      * @return The key of the created list. It will end with the defaultListSuffix.
      */
     static @NonNull String newList() {
-        Map<String, TodoList> lists = CONFIG.lists();
+        Map<String, TodoList> lists = new HashMap<>(CONFIG.lists());
         String key = uniqueListKey();
 
         lists.put(key, new TodoList(key, new ArrayList<>()));
-        CONFIG.lists(new HashMap<>(lists));
+        CONFIG.lists(lists);
         return key;
     }
 
