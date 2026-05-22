@@ -230,21 +230,6 @@ final class ConfigUtils {
     }
 
     /**
-     * Swaps the currently active list with a different one.
-     *
-     * @param key The list to set as active.
-     * @return Whether the swap was successful.
-     */
-    static boolean swap(String key) {
-        if (CONFIG.lists().containsKey(key)) {
-            ConfigUtils.setActiveList(key);
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    /**
      * Saves the current list as a template with key templateName.
      *
      * @param templateName The key of the newly saved template.

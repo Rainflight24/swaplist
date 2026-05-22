@@ -63,6 +63,7 @@ public class CommandRegister {
 
             dispatcher.register(ClientCommandManager.literal("save")
                     .then(ClientCommandManager.argument("template_name", StringArgumentType.string())
+                            .suggests(new TemplateSuggestionProvider())
                             .executes(CommandRegister::executeSave)));
 
             dispatcher.register(ClientCommandManager.literal("delete")
@@ -153,12 +154,12 @@ public class CommandRegister {
     private static int executeSwap(CommandContext<FabricClientCommandSource> context) {
         String key = StringArgumentType.getString(context, "list_name");
 
-        if (ConfigUtils.swap(key)) {
-            return 1;
-        } else {
+        if (!ConfigUtils.isListExistent(key)) {
             context.getSource().sendError(Component.literal("Provided list (%s) does not exist".formatted(key)));
             return -1;
         }
+        ConfigUtils.setActiveList(key);
+        return 1;
     }
 
     private static int executeRename(CommandContext<FabricClientCommandSource> context) {

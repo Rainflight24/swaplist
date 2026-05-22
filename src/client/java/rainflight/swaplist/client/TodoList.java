@@ -29,7 +29,7 @@ public class TodoList {
         public String text;
         public boolean toggled;
 
-        @SuppressWarnings("unused") // default constructor necessary for Jackson config serialization
+        @SuppressWarnings("unused") // default constructor necessary for owo-lib config serialization
         public ListItem() {
         }
 

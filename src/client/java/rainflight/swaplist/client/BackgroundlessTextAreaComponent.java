@@ -41,19 +41,7 @@ public class BackgroundlessTextAreaComponent extends MultiLineEditBox {
     protected final Observable<Integer> maxLines = Observable.of(-1);
 
     protected BackgroundlessTextAreaComponent(Sizing horizontalSizing, Sizing verticalSizing) {
-        super(Minecraft.getInstance().font, 0, 0, 0, 0, Component.empty(), Component.empty(), Color.WHITE.argb(), false, Color.WHITE.argb(), false, true);
-        this.editBox = ((MultiLineEditBoxAccessor) this).owo$getTextField();
-        this.sizing(horizontalSizing, verticalSizing);
-
-        this.textValue.observe(this.changedEvents.sink()::onChanged);
-        Observable.observeAll(this.widgetWrapper()::notifyParentIfMounted, this.displayCharCount, this.maxLines);
-
-        super.setValueListener(s -> {
-            this.textValue.set(s);
-
-            if (this.maxLines.get() < 0) return;
-            this.widgetWrapper().notifyParentIfMounted();
-        });
+        this(horizontalSizing, verticalSizing, Component.empty(), Color.WHITE, false, Color.WHITE, false);
     }
 
     protected BackgroundlessTextAreaComponent(Sizing horizontalSizing, Sizing verticalSizing, Component message,
