@@ -17,23 +17,15 @@ import java.util.function.Consumer;
 public class HudDisplay {
     final private Identifier id;
     private boolean visible = true;
-    private boolean needsRebuild = true;
     static int INSET_SIZE = 10;
 
     public HudDisplay(Identifier id) {
         this.id = id;
 
-        ClientTickEvents.END_CLIENT_TICK.register(client -> {
-            if (needsRebuild) {
-                needsRebuild = false;
-                rebuild();
-            }
-        });
-
-        Consumer<Integer> intConsumer = _unused -> needsRebuild = true;
-        Consumer<String> stringConsumer = _unused -> needsRebuild = true;
-        Consumer<Color> colorConsumer = _unused -> needsRebuild = true;
-        Consumer<Map<String, TodoList>> listsConsumer = _unused -> needsRebuild = true;
+        Consumer<Integer> intConsumer = _unused -> rebuild();
+        Consumer<String> stringConsumer = _unused -> rebuild();
+        Consumer<Color> colorConsumer = _unused -> rebuild();
+        Consumer<Map<String, TodoList>> listsConsumer = _unused -> rebuild();
 
         SwaplistClient.CONFIG.subscribeToListWidth(intConsumer);
         SwaplistClient.CONFIG.subscribeToListHeight(intConsumer);
