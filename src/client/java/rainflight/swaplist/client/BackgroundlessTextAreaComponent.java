@@ -63,10 +63,10 @@ public class BackgroundlessTextAreaComponent extends MultiLineEditBox {
     }
 
     /**
-     * Computes the component height needed to display {@code text} with the given width.
+     * Computes the component height needed to display {@code text} with the given component width.
      *
      * @param text           to display
-     * @param componentWidth of the component
+     * @param componentWidth the width allocated to the component
      * @return the desired height
      */
     public static int computeHeight(String text, int componentWidth) {
