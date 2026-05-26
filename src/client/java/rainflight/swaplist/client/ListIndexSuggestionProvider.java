@@ -12,10 +12,6 @@ public class ListIndexSuggestionProvider implements SuggestionProvider<FabricCli
     @Override
     public CompletableFuture<Suggestions> getSuggestions(CommandContext<FabricClientCommandSource> context, SuggestionsBuilder builder) {
 
-//        for (TodoList.ListItem listItem : ConfigUtils.getCurList().items) {
-//            builder.suggest(listItem.text);
-//        }
-
         for (int i = 0; i < ConfigUtils.getCurList().items.size(); ++i) {
             builder.suggest(i + 1);
             builder.suggest(-i - 1);
