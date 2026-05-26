@@ -58,7 +58,7 @@ public class HudDisplay {
         final FlowLayout layout = UIContainers.verticalFlow(Sizing.fixed(width), Sizing.content())
                 .gap(layoutGap);
 
-        // Label line wrapping requires manual width calculations.
+        // Line wrapping requires manual width calculations.
         layout.child(UIComponents.label(Component.literal(curList.name))
                 .color(textColor)
                 .maxWidth(width - 2 * insetSize));
@@ -71,7 +71,8 @@ public class HudDisplay {
             var checkbox = UIComponents.smallCheckbox(null);
             checkbox.checked(listItem.toggled);
 
-            final int textWidth = width - gap - 2 * insetSize - checkboxSize;
+            final int textWidth = width - gap - 2 * insetSize - checkboxSize
+                    + BackgroundlessTextAreaComponent.inflateWidth + BackgroundlessTextAreaComponent.innerPadding;
 
             var textArea = new BackgroundlessTextAreaComponent.Builder()
                     .setTextColor(textColor)

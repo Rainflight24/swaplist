@@ -12,7 +12,6 @@ import io.wispforest.owo.util.EventSource;
 import io.wispforest.owo.util.EventStream;
 import io.wispforest.owo.util.Observable;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.MultiLineEditBox;
 import net.minecraft.client.gui.components.MultilineTextField;
@@ -33,17 +32,17 @@ import java.util.function.Consumer;
 @SuppressWarnings({"unused", "UnusedReturnValue"}) // functionality from owo-lib left as-is
 public class BackgroundlessTextAreaComponent extends MultiLineEditBox {
 
+    static public int inflateWidth = 9; // see inflate()
+    static public int innerPadding = 4; // see innerPadding()
     protected final Observable<String> textValue = Observable.of("");
     protected final EventStream<OnChanged> changedEvents = OnChanged.newStream();
     protected final MultilineTextField editBox;
-
     protected final Observable<Boolean> displayCharCount = Observable.of(false);
     protected final Observable<Integer> maxLines = Observable.of(-1);
 
     protected BackgroundlessTextAreaComponent(Sizing horizontalSizing, Sizing verticalSizing) {
         this(horizontalSizing, verticalSizing, Component.empty(), Color.WHITE, false, Color.WHITE, false);
     }
-
     protected BackgroundlessTextAreaComponent(Sizing horizontalSizing, Sizing verticalSizing, Component message,
                                               Color textColor, boolean textShadow, Color cursorColor,
                                               boolean showBackground) {
@@ -71,12 +70,10 @@ public class BackgroundlessTextAreaComponent extends MultiLineEditBox {
      * @return the desired height
      */
     public static int computeHeight(String text, int componentWidth) {
-        final int scrollbarWidth = 9; // see inflate()
-        final int totalInnerPadding = 8; // see totalInnerPadding()
-        final int innerWidth = componentWidth - totalInnerPadding - scrollbarWidth;
+        final int innerWidth = componentWidth - 2 * innerPadding - inflateWidth;
         final var font = Minecraft.getInstance().font;
         final int lineCount = font.split(Component.literal(text), innerWidth).size();
-        return lineCount * font.lineHeight + totalInnerPadding;
+        return lineCount * font.lineHeight + 2 * innerPadding;
 
     }
 
