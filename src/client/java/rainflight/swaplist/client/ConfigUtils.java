@@ -61,7 +61,19 @@ final class ConfigUtils {
     }
 
     /**
-     * Saves the provided todolist to config, while replacing the currently active list.
+     * Persists the config to disk. Auto-save on modification is disabled (see
+     * {@link SwaplistConfigModel}'s {@code @Config}), so mutators that represent a complete
+     * user action call this themselves. Streaming edits ({@link #changeLine} and
+     * {@link #setListPosition}) intentionally skip it and defer to an explicit save at their
+     * commit point (e.g. closing the edit screen).
+     */
+    static void save() {
+        CONFIG.save();
+    }
+
+    /**
+     * Saves the provided todolist to config, while replacing the currently active list. Does not
+     * persist on its own; the caller decides whether to {@link #save()}.
      *
      * @param list The todolist to save.
      */
@@ -121,6 +133,7 @@ final class ConfigUtils {
 
         lists.put(key, new TodoList(key, new ArrayList<>()));
         CONFIG.lists(lists);
+        save();
         return key;
     }
 
@@ -176,6 +189,7 @@ final class ConfigUtils {
         final TodoList list = getCurList();
         list.items.add(new TodoList.ListItem(line, false));
         saveCurList(list);
+        save();
     }
 
     /**
@@ -186,6 +200,7 @@ final class ConfigUtils {
         if (!list.items.isEmpty()) {
             list.items.removeLast();
             saveCurList(list);
+            save();
         }
     }
 
@@ -199,6 +214,7 @@ final class ConfigUtils {
         if (idx >= 0 && idx < list.items.size()) {
             list.items.remove(idx);
             saveCurList(list);
+            save();
         }
     }
 
@@ -213,11 +229,13 @@ final class ConfigUtils {
             TodoList.ListItem old = list.items.get(idx);
             list.items.set(idx, new TodoList.ListItem(old.text, !old.toggled));
             saveCurList(list);
+            save();
         }
     }
 
     /**
-     * Changes the nth checkbox's text.
+     * Changes the nth checkbox's text. Fired per keystroke while editing, so it intentionally does
+     * not {@link #save()}; the caller persists once at its commit point (e.g. on screen close).
      *
      * @param idx The zero-indexed index to change.
      * @param text The box's new text.
@@ -239,6 +257,7 @@ final class ConfigUtils {
     static void setActiveList(String key) {
         if (CONFIG.lists().containsKey(key)) {
             CONFIG.curActiveList(key);
+            save();
         } else {
             Swaplist.LOGGER.warn("Attempted to set active list to nonexistent key {}.", key);
         }
@@ -250,6 +269,20 @@ final class ConfigUtils {
      */
     static void setWidth(int newWidth) {
         CONFIG.listWidth(newWidth);
+        save();
+    }
+
+    /**
+     * Updates the displayed list's on-screen position in memory. Called repeatedly while dragging,
+     * so it intentionally does not {@link #save()}; the caller persists once at its commit point
+     * (e.g. on screen close).
+     *
+     * @param x The new horizontal position.
+     * @param y The new vertical position.
+     */
+    static void setListPosition(int x, int y) {
+        CONFIG.listHorizontalPos(x);
+        CONFIG.listVerticalPos(y);
     }
 
     /**
@@ -262,5 +295,6 @@ final class ConfigUtils {
         var templates = new HashMap<>(CONFIG.templates());
         templates.put(templateName, list);
         CONFIG.templates(templates);
+        save();
     }
 }

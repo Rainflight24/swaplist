@@ -8,7 +8,6 @@ import io.wispforest.owo.ui.core.*;
 import io.wispforest.owo.ui.event.MouseDrag;
 import net.minecraft.client.input.MouseButtonEvent;
 import org.jetbrains.annotations.NotNull;
-import rainflight.swaplist.Swaplist;
 
 import static rainflight.swaplist.client.SwaplistClient.CONFIG;
 
@@ -52,12 +51,10 @@ public class TodoListScreen extends BaseOwoScreen<FlowLayout> {
 
     @Override
     public void onClose() {
+        // Commit edits accumulated while the screen was open.
+        ConfigUtils.save();
         SwaplistClient.hudDisplay.setVisible(true);
         super.onClose();
-    }
-
-    private void save() {
-
     }
 
     private static class dragListener<T extends UIComponent> implements MouseDrag {
@@ -69,8 +66,7 @@ public class TodoListScreen extends BaseOwoScreen<FlowLayout> {
 
         @Override
         public boolean onMouseDrag(MouseButtonEvent _click, double _deltaX, double _deltaY) {
-            CONFIG.listHorizontalPos(draggableContainer.x());
-            CONFIG.listVerticalPos(draggableContainer.y());
+            ConfigUtils.setListPosition(draggableContainer.x(), draggableContainer.y());
             return true;
         }
     }

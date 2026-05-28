@@ -11,7 +11,7 @@ import java.util.Map;
 
 @SuppressWarnings("unused") // model class fields are not directly used
 @Modmenu(modId = Swaplist.MOD_ID)
-@Config(name = Swaplist.MOD_ID, wrapperName = "SwaplistConfig")
+@Config(name = Swaplist.MOD_ID, wrapperName = "SwaplistConfig", saveOnModification = false)
 public class SwaplistConfigModel {
 
     @Hook

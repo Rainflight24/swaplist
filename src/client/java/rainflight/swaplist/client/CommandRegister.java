@@ -137,7 +137,7 @@ public class CommandRegister {
 
     private static int executeWidth(CommandContext<FabricClientCommandSource> context) {
         int width = IntegerArgumentType.getInteger(context, "new_width");
-        SwaplistClient.CONFIG.listWidth(width);
+        ConfigUtils.setWidth(width);
         context.getSource().sendFeedback(Component.literal("Set width to: %d pixels."
                 .formatted(width)));
         return 1;
