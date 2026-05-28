@@ -15,70 +15,58 @@ import static rainflight.swaplist.client.SwaplistClient.hudDisplay;
 public class CommandRegister {
     public static void registerCommands() {
         ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> {
-            dispatcher.register(ClientCommandManager.literal("add")
-                    .then(ClientCommandManager.argument("desc", StringArgumentType.greedyString())
-                            .executes(CommandRegister::executeAdd)));
-
-            dispatcher.register(ClientCommandManager.literal("pop")
-                    .executes(CommandRegister::executePop));
-
-            dispatcher.register(ClientCommandManager.literal("show")
-                    .executes(context -> {
-                        hudDisplay.setVisible(true);
-                        return 1;
-                    }));
-
-            dispatcher.register(ClientCommandManager.literal("hide")
-                    .executes(context -> {
-                        hudDisplay.setVisible(false);
-                        return 1;
-                    }));
-
-            dispatcher.register(ClientCommandManager.literal("toggle")
-                    .then(ClientCommandManager.argument("index", IntegerArgumentType.integer())
-                            .suggests(new ListIndexSuggestionProvider())
-                            .executes(CommandRegister::executeToggle)));
-
-            dispatcher.register(ClientCommandManager.literal("remove")
-                    .then(ClientCommandManager.argument("index", IntegerArgumentType.integer())
-                            .suggests(new ListIndexSuggestionProvider())
-                            .executes(CommandRegister::executeRemove)));
-
-            dispatcher.register(ClientCommandManager.literal("width")
-                    .then(ClientCommandManager.argument("new_width", IntegerArgumentType.integer(100))
-                            .executes(CommandRegister::executeWidth))
-                    .executes(CommandRegister::executeShowWidth));
-
-            dispatcher.register(ClientCommandManager.literal("new")
-                    .executes(CommandRegister::executeNew));
-
-            dispatcher.register(ClientCommandManager.literal("swap")
-                    .then(ClientCommandManager.argument("list_name", StringArgumentType.greedyString())
-                            .suggests(new ListSuggestionProvider())
-                            .executes(CommandRegister::executeSwap)));
-
-            dispatcher.register(ClientCommandManager.literal("rename")
-                    .then(ClientCommandManager.argument("new_name", StringArgumentType.greedyString())
-                            .executes(CommandRegister::executeRename)));
-
-            dispatcher.register(ClientCommandManager.literal("save")
-                    .then(ClientCommandManager.argument("template_name", StringArgumentType.string())
-                            .suggests(new TemplateSuggestionProvider())
-                            .executes(CommandRegister::executeSave)));
-
-            dispatcher.register(ClientCommandManager.literal("load")
-                    .then(ClientCommandManager.argument("template_name", StringArgumentType.string())
-                            .suggests(new TemplateSuggestionProvider())
-                            .executes(CommandRegister::executeLoad)));
-
-            dispatcher.register(ClientCommandManager.literal("delete")
-                    .executes(context -> executeDelete(context, SwaplistClient.CONFIG.curActiveList()))
-                    .then(ClientCommandManager.argument("to_delete", StringArgumentType.greedyString())
-                            .suggests(new ListSuggestionProvider())
-                            .executes(context ->
-                                    executeDelete(context, StringArgumentType.getString(context, "to_delete")))));
+            dispatcher.register(ClientCommandManager.literal("swaplist")
+                    .then(ClientCommandManager.literal("add")
+                            .then(ClientCommandManager.argument("desc", StringArgumentType.greedyString())
+                                    .executes(CommandRegister::executeAdd)))
+                    .then(ClientCommandManager.literal("pop")
+                            .executes(CommandRegister::executePop))
+                    .then(ClientCommandManager.literal("show")
+                            .executes(context -> {
+                                hudDisplay.setVisible(true);
+                                return 1;
+                            }))
+                    .then(ClientCommandManager.literal("hide")
+                            .executes(context -> {
+                                hudDisplay.setVisible(false);
+                                return 1;
+                            }))
+                    .then(ClientCommandManager.literal("toggle")
+                            .then(ClientCommandManager.argument("index", IntegerArgumentType.integer())
+                                    .suggests(new ListIndexSuggestionProvider())
+                                    .executes(CommandRegister::executeToggle)))
+                    .then(ClientCommandManager.literal("remove")
+                            .then(ClientCommandManager.argument("index", IntegerArgumentType.integer())
+                                    .suggests(new ListIndexSuggestionProvider())
+                                    .executes(CommandRegister::executeRemove)))
+                    .then(ClientCommandManager.literal("width")
+                            .then(ClientCommandManager.argument("new_width", IntegerArgumentType.integer(100))
+                                    .executes(CommandRegister::executeWidth))
+                            .executes(CommandRegister::executeShowWidth))
+                    .then(ClientCommandManager.literal("new")
+                            .executes(CommandRegister::executeNew))
+                    .then(ClientCommandManager.literal("swap")
+                            .then(ClientCommandManager.argument("list_name", StringArgumentType.greedyString())
+                                    .suggests(new ListSuggestionProvider())
+                                    .executes(CommandRegister::executeSwap)))
+                    .then(ClientCommandManager.literal("rename")
+                            .then(ClientCommandManager.argument("new_name", StringArgumentType.greedyString())
+                                    .executes(CommandRegister::executeRename)))
+                    .then(ClientCommandManager.literal("save")
+                            .then(ClientCommandManager.argument("template_name", StringArgumentType.string())
+                                    .suggests(new TemplateSuggestionProvider())
+                                    .executes(CommandRegister::executeSave)))
+                    .then(ClientCommandManager.literal("load")
+                            .then(ClientCommandManager.argument("template_name", StringArgumentType.string())
+                                    .suggests(new TemplateSuggestionProvider())
+                                    .executes(CommandRegister::executeLoad)))
+                    .then(ClientCommandManager.literal("delete")
+                            .executes(context -> executeDelete(context, SwaplistClient.CONFIG.curActiveList()))
+                            .then(ClientCommandManager.argument("to_delete", StringArgumentType.greedyString())
+                                    .suggests(new ListSuggestionProvider())
+                                    .executes(context ->
+                                            executeDelete(context, StringArgumentType.getString(context, "to_delete"))))));
         });
-
     }
 
     private static int executeAdd(CommandContext<FabricClientCommandSource> context) {
@@ -206,7 +194,7 @@ public class CommandRegister {
         }
 
         context.getSource().sendFeedback(Component.literal(
-                "Loaded template %s into list %s.".formatted(templateName, key.get())));
+                "Loaded template %s as list %s.".formatted(templateName, key.get())));
         return 1;
     }
 
