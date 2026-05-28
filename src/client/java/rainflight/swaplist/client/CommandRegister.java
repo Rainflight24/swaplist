@@ -66,6 +66,11 @@ public class CommandRegister {
                             .suggests(new TemplateSuggestionProvider())
                             .executes(CommandRegister::executeSave)));
 
+            dispatcher.register(ClientCommandManager.literal("load")
+                    .then(ClientCommandManager.argument("template_name", StringArgumentType.string())
+                            .suggests(new TemplateSuggestionProvider())
+                            .executes(CommandRegister::executeLoad)));
+
             dispatcher.register(ClientCommandManager.literal("delete")
                     .executes(context -> executeDelete(context, SwaplistClient.CONFIG.curActiveList()))
                     .then(ClientCommandManager.argument("to_delete", StringArgumentType.greedyString())
@@ -187,6 +192,21 @@ public class CommandRegister {
     private static int executeSave(CommandContext<FabricClientCommandSource> context) {
         String templateName = StringArgumentType.getString(context, "template_name");
         ConfigUtils.saveCurAsTemplate(templateName);
+        return 1;
+    }
+
+    private static int executeLoad(CommandContext<FabricClientCommandSource> context) {
+        String templateName = StringArgumentType.getString(context, "template_name");
+        Optional<String> key = ConfigUtils.loadTemplate(templateName);
+
+        if (key.isEmpty()) {
+            context.getSource().sendError(Component.literal(
+                    "Provided template (%s) does not exist".formatted(templateName)));
+            return -1;
+        }
+
+        context.getSource().sendFeedback(Component.literal(
+                "Loaded template %s into list %s.".formatted(templateName, key.get())));
         return 1;
     }
 

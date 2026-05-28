@@ -297,4 +297,28 @@ final class ConfigUtils {
         CONFIG.templates(templates);
         save();
     }
+
+    /**
+     * Loads the template with the given name into a freshly created list, and makes it the active
+     * list. The new list is named after the template using the unique "nth name" scheme (e.g.
+     * "2nd TemplateName"), so loading the same template repeatedly never overwrites an existing
+     * list.
+     *
+     * @param templateName The key of the template to load.
+     * @return The key of the newly created list, or empty if no such template exists.
+     */
+    static Optional<String> loadTemplate(String templateName) {
+        TodoList template = CONFIG.templates().get(templateName);
+        if (template == null) {
+            return Optional.empty();
+        }
+
+        final Map<String, TodoList> lists = new HashMap<>(CONFIG.lists());
+        String key = uniqueKey(templateName, lists.keySet());
+
+        lists.put(key, new TodoList(key, template.items));
+        CONFIG.lists(lists);
+        setActiveList(key);
+        return Optional.of(key);
+    }
 }
