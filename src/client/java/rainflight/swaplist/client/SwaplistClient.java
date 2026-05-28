@@ -36,7 +36,7 @@ public class SwaplistClient implements ClientModInitializer {
             while (openTestScreen.consumeClick()) {
                 if (client.player != null) {
                     // TODO: see https://docs.fabricmc.net/develop/rendering/gui/custom-screens#closing-the-screen on returning to the previous screen
-                    if (Minecraft.getInstance().screen instanceof MyFirstScreen)
+                    if (Minecraft.getInstance().screen instanceof TodoListScreen)
                         continue;
                     Minecraft.getInstance().setScreen(
                             new TodoListScreen()
