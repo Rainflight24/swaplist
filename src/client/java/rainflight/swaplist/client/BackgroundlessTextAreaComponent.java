@@ -40,6 +40,11 @@ public class BackgroundlessTextAreaComponent extends MultiLineEditBox {
     protected final Observable<Boolean> displayCharCount = Observable.of(false);
     protected final Observable<Integer> maxLines = Observable.of(-1);
 
+    /** Whether the vertical axis sizes itself to the text, i.e. the caller passed {@link Sizing#content()}. */
+    private final boolean autoHeight;
+    /** Last height applied by {@link #resizeToContent()}; {@code -1} until first applied. */
+    private int appliedContentHeight = -1;
+
     protected BackgroundlessTextAreaComponent(Sizing horizontalSizing, Sizing verticalSizing) {
         this(horizontalSizing, verticalSizing, Component.empty(), Color.WHITE, false, Color.WHITE, false);
     }
@@ -49,17 +54,39 @@ public class BackgroundlessTextAreaComponent extends MultiLineEditBox {
         super(Minecraft.getInstance().font, 0, 0, 0, 0, Component.empty(), message,
                 textColor.argb(), textShadow, cursorColor.argb(), showBackground, true);
         this.editBox = ((MultiLineEditBoxAccessor) this).owo$getTextField();
-        this.sizing(horizontalSizing, verticalSizing);
+
+        // owo cannot resolve Sizing.content() for this widget type (its VanillaWidgetComponent wrapper only
+        // handles TextAreaComponent), so we honor content() ourselves: install a placeholder height and let
+        // resizeToContent() drive it. Sizing.fixed(...) is passed through and left untouched.
+        this.autoHeight = verticalSizing.isContent();
+        this.sizing(horizontalSizing, this.autoHeight ? Sizing.fixed(0) : verticalSizing);
 
         this.textValue.observe(this.changedEvents.sink()::onChanged);
         Observable.observeAll(this.widgetWrapper()::notifyParentIfMounted, this.displayCharCount, this.maxLines);
 
         super.setValueListener(s -> {
             this.textValue.set(s);
+            this.resizeToContent();
 
             if (this.maxLines.get() < 0) return;
             this.widgetWrapper().notifyParentIfMounted();
         });
+    }
+
+    /**
+     * When {@link #autoHeight auto-sizing}, resizes the component vertically to exactly fit the current
+     * text at the current width. Changing the vertical sizing notifies the parent layout, which
+     * re-inflates this component; the {@link #appliedContentHeight} guard keeps that from looping.
+     * No-op for a fixed height, or until a width is known (i.e. after the first inflate).
+     */
+    private void resizeToContent() {
+        if (!this.autoHeight || this.width() <= 0) return;
+
+        final int desired = computeHeight(this.getValue(), this.width());
+        if (desired == this.appliedContentHeight) return;
+
+        this.appliedContentHeight = desired;
+        this.verticalSizing(Sizing.fixed(desired));
     }
 
     /**
@@ -74,7 +101,6 @@ public class BackgroundlessTextAreaComponent extends MultiLineEditBox {
         final var font = Minecraft.getInstance().font;
         final int lineCount = font.split(Component.literal(text), innerWidth).size();
         return lineCount * font.lineHeight + 2 * innerPadding;
-
     }
 
     @Override
@@ -153,6 +179,13 @@ public class BackgroundlessTextAreaComponent extends MultiLineEditBox {
 
         this.editBox.seekCursor(Whence.ABSOLUTE, cursor);
         ((MultilineTextFieldAccessor) this.editBox).owo$setSelectCursor(selection);
+
+        // Show the top of the text: when a fixed height can't fit the text, clip the overflow at the
+        // bottom rather than the top. setValue() parks the cursor at the end, which would otherwise
+        // scroll to the bottom via the cursor listener. No-op when auto-sized (the content always fits).
+        this.setScrollAmount(0);
+
+        this.resizeToContent();
     }
 
     public EventSource<OnChanged> onChanged() {
@@ -247,6 +280,14 @@ public class BackgroundlessTextAreaComponent extends MultiLineEditBox {
             return new BackgroundlessTextAreaComponent(
                     horizontalSizing, verticalSizing, message, textColor, textShadow, cursorColor, showBackground
             );
+        }
+
+        /**
+         * Builds a component that sizes its own height to fit its text; only the width is supplied.
+         * Equivalent to passing {@link Sizing#content()} as the vertical sizing.
+         */
+        public BackgroundlessTextAreaComponent build(Sizing horizontalSizing) {
+            return build(horizontalSizing, Sizing.content());
         }
     }
 }

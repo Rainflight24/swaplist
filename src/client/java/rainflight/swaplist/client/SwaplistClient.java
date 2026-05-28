@@ -38,7 +38,7 @@ public class SwaplistClient implements ClientModInitializer {
                     if (Minecraft.getInstance().screen instanceof MyFirstScreen)
                         continue;
                     Minecraft.getInstance().setScreen(
-                            new MyFirstScreen()
+                            new TodoListScreen()
                     );
                 }
             }

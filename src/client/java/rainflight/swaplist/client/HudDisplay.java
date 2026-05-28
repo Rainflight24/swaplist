@@ -1,11 +1,11 @@
 package rainflight.swaplist.client;
 
+import io.wispforest.owo.ui.component.SmallCheckboxComponent;
 import io.wispforest.owo.ui.component.UIComponents;
 import io.wispforest.owo.ui.container.FlowLayout;
 import io.wispforest.owo.ui.container.UIContainers;
 import io.wispforest.owo.ui.core.*;
 import io.wispforest.owo.ui.hud.Hud;
-import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
@@ -13,6 +13,8 @@ import net.minecraft.resources.Identifier;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
+
+import static rainflight.swaplist.client.SwaplistClient.CONFIG;
 
 public class HudDisplay {
     final private Identifier id;
@@ -27,13 +29,13 @@ public class HudDisplay {
         Consumer<Color> colorConsumer = _unused -> rebuild();
         Consumer<Map<String, TodoList>> listsConsumer = _unused -> rebuild();
 
-        SwaplistClient.CONFIG.subscribeToListWidth(intConsumer);
-        SwaplistClient.CONFIG.subscribeToListHeight(intConsumer);
-        SwaplistClient.CONFIG.subscribeToListHorizontalPos(intConsumer);
-        SwaplistClient.CONFIG.subscribeToListVerticalPos(intConsumer);
-        SwaplistClient.CONFIG.subscribeToCurActiveList(stringConsumer);
-        SwaplistClient.CONFIG.subscribeToListColor(colorConsumer);
-        SwaplistClient.CONFIG.subscribeToLists(listsConsumer);
+        CONFIG.subscribeToListWidth(intConsumer);
+        CONFIG.subscribeToListHeight(intConsumer);
+        CONFIG.subscribeToListHorizontalPos(intConsumer);
+        CONFIG.subscribeToListVerticalPos(intConsumer);
+        CONFIG.subscribeToCurActiveList(stringConsumer);
+        CONFIG.subscribeToListColor(colorConsumer);
+        CONFIG.subscribeToLists(listsConsumer);
     }
 
     private static int labelHeight(String text, int width, int lineSpacing) {
@@ -43,11 +45,11 @@ public class HudDisplay {
     }
 
     static ParentUIComponent makeLayout() {
-        final int hPos = SwaplistClient.CONFIG.listHorizontalPos();
-        final int vPos = SwaplistClient.CONFIG.listVerticalPos();
-        final int width = SwaplistClient.CONFIG.listWidth();
-        final int height = SwaplistClient.CONFIG.listHeight();
-        final Color textColor = SwaplistClient.CONFIG.listColor();
+        final int hPos = CONFIG.listHorizontalPos();
+        final int vPos = CONFIG.listVerticalPos();
+        final int width = CONFIG.listWidth();
+        final int height = CONFIG.listHeight();
+        final Color textColor = CONFIG.listColor();
 
         final TodoList curList = ConfigUtils.getCurList();
         final List<TodoList.ListItem> items = curList.items;
@@ -101,7 +103,7 @@ public class HudDisplay {
         }
 
         for (int i = 0; i < displayCount; i++) {
-            layout.child(layoutRow(items.get(i), hGap, textComponentWidth, textColor, textHeights[i]));
+            layout.child(layoutRow(items.get(i), i, hGap, textComponentWidth, textColor));
         }
         if (truncated) {
             layout.child(UIComponents.label(Component.literal(overflowText)).color(textColor).maxWidth(labelWidth));
@@ -117,18 +119,36 @@ public class HudDisplay {
     }
 
     /**
+     * Listener which toggles the corresponding checkbox's config.
+     */
+    private static class checkboxListener implements SmallCheckboxComponent.OnChanged {
+        final private int idx;
+        public checkboxListener(int idx) {
+            this.idx = idx;
+        }
+
+        @Override
+        public void onChanged(boolean nowChecked) {
+            ConfigUtils.toggleLine(idx);
+        }
+    }
+
+    /**
      * Creates one row of the layout.
      */
-    private static UIComponent layoutRow(TodoList.ListItem listItem, int hGap, int textWidth, Color textColor, int textHeight) {
+    private static UIComponent layoutRow(TodoList.ListItem listItem, int checkboxIndex, int hGap, int textWidth, Color textColor) {
         // Ignore SmallCheckboxComponent's text field, which does not support line wrapping.
-        var checkbox = UIComponents.smallCheckbox(null);
-        checkbox.checked(listItem.toggled);
+        var checkbox = UIComponents.smallCheckbox(null)
+                .checked(listItem.toggled);
+        checkbox.onChanged().subscribe(new checkboxListener(checkboxIndex));
 
+        // The text area sizes its own height to fit the text.
         var textArea = new BackgroundlessTextAreaComponent.Builder()
                 .setTextColor(textColor)
                 .setShowBackground(false)
-                .build(Sizing.fixed(textWidth), Sizing.fixed(textHeight));
-        textArea.text(listItem.text);
+                .build(Sizing.fixed(textWidth));
+        textArea.text(listItem.text)
+                .onChanged().subscribe(new textAreaListener(checkboxIndex));
 
         return UIContainers.horizontalFlow(Sizing.content(), Sizing.content())
                 .child(checkbox)
@@ -165,4 +185,16 @@ public class HudDisplay {
         rebuild();
     }
 
+    private static class textAreaListener implements BackgroundlessTextAreaComponent.OnChanged {
+        final private int idx;
+
+        public textAreaListener(int idx) {
+            this.idx = idx;
+        }
+
+        @Override
+        public void onChanged(String value) {
+            ConfigUtils.changeLine(idx, value);
+        }
+    }
 }

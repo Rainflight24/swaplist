@@ -217,6 +217,21 @@ final class ConfigUtils {
     }
 
     /**
+     * Changes the nth checkbox's text.
+     *
+     * @param idx The zero-indexed index to change.
+     * @param text The box's new text.
+     */
+    static void changeLine(int idx, String text) {
+        final TodoList list = getCurList();
+        if (idx >= 0 && idx < list.items.size()) {
+            TodoList.ListItem old = list.items.get(idx);
+            list.items.set(idx, new TodoList.ListItem(text, old.toggled));
+            saveCurList(list);
+        }
+    }
+
+    /**
      * Changes the currently active list.
      *
      * @param key The key of the newly active list.
@@ -227,6 +242,14 @@ final class ConfigUtils {
         } else {
             Swaplist.LOGGER.warn("Attempted to set active list to nonexistent key {}.", key);
         }
+    }
+
+    /**
+     * Updates the list's width.
+     * @param newWidth the list's new width
+     */
+    static void setWidth(int newWidth) {
+        CONFIG.listWidth(newWidth);
     }
 
     /**
