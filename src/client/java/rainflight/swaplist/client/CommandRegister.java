@@ -13,6 +13,10 @@ import java.util.Optional;
 import static rainflight.swaplist.client.SwaplistClient.hudDisplay;
 
 public class CommandRegister {
+
+    public static final CollectionSuggestionProvider<String> LIST_SUGGESTION_PROVIDER = new CollectionSuggestionProvider<>(() -> SwaplistClient.CONFIG.lists().keySet());
+    public static final CollectionSuggestionProvider<String> TEMPLATE_SUGGESTION_PROVIDER = new CollectionSuggestionProvider<>(() -> SwaplistClient.CONFIG.templates().keySet());
+
     public static void registerCommands() {
         ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> {
             dispatcher.register(ClientCommandManager.literal("swaplist")
@@ -47,23 +51,23 @@ public class CommandRegister {
                             .executes(CommandRegister::executeNew))
                     .then(ClientCommandManager.literal("swap")
                             .then(ClientCommandManager.argument("list_name", StringArgumentType.greedyString())
-                                    .suggests(new ListSuggestionProvider())
+                                    .suggests(LIST_SUGGESTION_PROVIDER)
                                     .executes(CommandRegister::executeSwap)))
                     .then(ClientCommandManager.literal("rename")
                             .then(ClientCommandManager.argument("new_name", StringArgumentType.greedyString())
                                     .executes(CommandRegister::executeRename)))
                     .then(ClientCommandManager.literal("save")
                             .then(ClientCommandManager.argument("template_name", StringArgumentType.string())
-                                    .suggests(new TemplateSuggestionProvider())
+                                    .suggests(TEMPLATE_SUGGESTION_PROVIDER)
                                     .executes(CommandRegister::executeSave)))
                     .then(ClientCommandManager.literal("load")
                             .then(ClientCommandManager.argument("template_name", StringArgumentType.string())
-                                    .suggests(new TemplateSuggestionProvider())
+                                    .suggests(TEMPLATE_SUGGESTION_PROVIDER)
                                     .executes(CommandRegister::executeLoad)))
                     .then(ClientCommandManager.literal("delete")
                             .executes(context -> executeDelete(context, SwaplistClient.CONFIG.curActiveList()))
                             .then(ClientCommandManager.argument("to_delete", StringArgumentType.greedyString())
-                                    .suggests(new ListSuggestionProvider())
+                                    .suggests(LIST_SUGGESTION_PROVIDER)
                                     .executes(context ->
                                             executeDelete(context, StringArgumentType.getString(context, "to_delete"))))));
         });
