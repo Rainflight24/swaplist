@@ -17,10 +17,10 @@ public class HudDisplay {
     public HudDisplay(Identifier id) {
         this.id = id;
 
-        Consumer<Integer> intConsumer = _unused -> rebuild();
-        Consumer<String> stringConsumer = _unused -> rebuild();
-        Consumer<Color> colorConsumer = _unused -> rebuild();
-        Consumer<Map<String, TodoList>> listsConsumer = _unused -> rebuild();
+        Consumer<Integer> intConsumer = unused -> rebuild();
+        Consumer<String> stringConsumer = unused -> rebuild();
+        Consumer<Color> colorConsumer = unused -> rebuild();
+        Consumer<Map<String, TodoList>> listsConsumer = unused -> rebuild();
 
         CONFIG.subscribeToListWidth(intConsumer);
         CONFIG.subscribeToListHeight(intConsumer);

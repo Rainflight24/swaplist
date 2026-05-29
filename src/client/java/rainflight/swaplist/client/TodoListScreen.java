@@ -67,7 +67,7 @@ public class TodoListScreen extends BaseOwoScreen<FlowLayout> {
         }
 
         @Override
-        public boolean onMouseDrag(MouseButtonEvent _click, double _deltaX, double _deltaY) {
+        public boolean onMouseDrag(MouseButtonEvent unusedClick, double unusedDeltaX, double unusedDeltaY) {
             ConfigUtils.setListPosition(draggableContainer.x(), draggableContainer.y());
             return true;
         }
