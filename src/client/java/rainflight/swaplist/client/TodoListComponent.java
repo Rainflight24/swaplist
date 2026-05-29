@@ -49,7 +49,7 @@ public class TodoListComponent extends FlowLayout {
         // Ignore SmallCheckboxComponent's text field, which does not support line wrapping.
         var checkbox = UIComponents.smallCheckbox(null)
                 .checked(listItem.toggled);
-        checkbox.onChanged().subscribe(new checkboxListener(index));
+        checkbox.onChanged().subscribe(new CheckboxListener(index));
 
         // The text area sizes its own height to fit the text.
         var textArea = new BackgroundlessTextAreaComponent.Builder()
@@ -57,7 +57,7 @@ public class TodoListComponent extends FlowLayout {
                 .setShowBackground(false)
                 .build(Sizing.fixed(textWidth));
         textArea.text(listItem.text)
-                .onChanged().subscribe(new textAreaListener(index));
+                .onChanged().subscribe(new TextAreaListener(index));
 
         return UIContainers.horizontalFlow(Sizing.content(), Sizing.content())
                 .child(checkbox)
@@ -155,10 +155,10 @@ public class TodoListComponent extends FlowLayout {
         UNBOUNDED
     }
 
-    private static class checkboxListener implements SmallCheckboxComponent.OnChanged {
+    private static class CheckboxListener implements SmallCheckboxComponent.OnChanged {
         final private int idx;
 
-        public checkboxListener(int idx) {
+        public CheckboxListener(int idx) {
             this.idx = idx;
         }
 
@@ -168,10 +168,10 @@ public class TodoListComponent extends FlowLayout {
         }
     }
 
-    private static class textAreaListener implements BackgroundlessTextAreaComponent.OnChanged {
+    private static class TextAreaListener implements BackgroundlessTextAreaComponent.OnChanged {
         final private int idx;
 
-        public textAreaListener(int idx) {
+        public TextAreaListener(int idx) {
             this.idx = idx;
         }
 

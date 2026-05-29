@@ -38,7 +38,7 @@ public class TodoListScreen extends BaseOwoScreen<FlowLayout> {
         draggable.foreheadSize(foreheadSize)
                 .positioning(Positioning.absolute(CONFIG.listHorizontalPos(),
                         CONFIG.listVerticalPos()))
-                .mouseDrag().subscribe(new dragListener<>(draggable));
+                .mouseDrag().subscribe(new DragListener<>(draggable));
 
         rootComponent.child(draggable);
 
@@ -59,10 +59,10 @@ public class TodoListScreen extends BaseOwoScreen<FlowLayout> {
         super.onClose();
     }
 
-    private static class dragListener<T extends UIComponent> implements MouseDrag {
+    private static class DragListener<T extends UIComponent> implements MouseDrag {
         private final DraggableContainer<T> draggableContainer;
 
-        public dragListener(DraggableContainer<T> draggableContainer) {
+        public DragListener(DraggableContainer<T> draggableContainer) {
             this.draggableContainer = draggableContainer;
         }
 
