@@ -1,15 +1,17 @@
 package rainflight.swaplist.client;
 
-import static rainflight.swaplist.client.SwaplistClient.CONFIG;
-
+import io.wispforest.owo.ui.component.LabelComponent;
 import io.wispforest.owo.ui.component.SmallCheckboxComponent;
 import io.wispforest.owo.ui.component.UIComponents;
 import io.wispforest.owo.ui.container.FlowLayout;
 import io.wispforest.owo.ui.container.UIContainers;
 import io.wispforest.owo.ui.core.*;
-import java.util.List;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
+
+import java.util.List;
+
+import static rainflight.swaplist.client.SwaplistClient.CONFIG;
 
 /**
  * Placement-free todolist layout (title + checkbox/text rows) for the active list. Callers
@@ -26,6 +28,9 @@ public class TodoListComponent extends FlowLayout {
     private static final String OVERFLOW_TEXT = ". . .";
     //    private final boolean asdf;
     private final Overflow overflow;
+
+    // The title label, captured each refresh() so the drag wrapper can locate its bounds.
+    private LabelComponent titleLabel;
 
     public TodoListComponent(Overflow overflow) {
         super(Sizing.fixed(CONFIG.listWidth()), Sizing.content(), Algorithm.VERTICAL);
@@ -82,10 +87,11 @@ public class TodoListComponent extends FlowLayout {
 
         // Line wrapping requires manual width calculations.
         final int labelWidth = width - 2 * INSET_SIZE;
-        child(
+        titleLabel =
                 UIComponents.label(Component.literal(curList.name))
                         .color(textColor)
-                        .maxWidth(labelWidth));
+                        .maxWidth(labelWidth);
+        child(titleLabel);
 
         final int textComponentWidth =
                 width
@@ -117,6 +123,13 @@ public class TodoListComponent extends FlowLayout {
         }
 
         return this;
+    }
+
+    /**
+     * Whether the absolute point {@code (x, y)} lies within the title's drag-handle region.
+     */
+    public boolean isOverTitle(int unusedX, int y) {
+        return titleLabel.y() <= y && y <= titleLabel.y() + titleLabel.height();
     }
 
     /**
