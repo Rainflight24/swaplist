@@ -11,8 +11,6 @@ import io.wispforest.owo.ui.parsing.UIParsing;
 import io.wispforest.owo.util.EventSource;
 import io.wispforest.owo.util.EventStream;
 import io.wispforest.owo.util.Observable;
-import java.util.Map;
-import java.util.function.Consumer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.MultiLineEditBox;
@@ -24,6 +22,9 @@ import net.minecraft.network.chat.Component;
 import org.jspecify.annotations.NonNull;
 import org.w3c.dom.Element;
 import rainflight.swaplist.Swaplist;
+
+import java.util.Map;
+import java.util.function.Consumer;
 
 /**
  * Copy of {@code io.wispforest.owo.ui.component.TextAreaComponent} with no background.
@@ -39,10 +40,14 @@ public class BackgroundlessTextAreaComponent extends MultiLineEditBox {
     protected final Observable<Boolean> displayCharCount = Observable.of(false);
     protected final Observable<Integer> maxLines = Observable.of(-1);
 
-    /** Whether the vertical axis sizes itself to the text, i.e. the caller passed {@link Sizing#content()}. */
+    /**
+     * Whether the vertical axis sizes itself to the text, i.e. the caller passed {@link Sizing#content()}.
+     */
     private final boolean autoHeight;
 
-    /** Last height applied by {@link #resizeToContent()}; {@code -1} until first applied. */
+    /**
+     * Last height applied by {@link #resizeToContent()}; {@code -1} until first applied.
+     */
     private int appliedContentHeight = -1;
 
     protected BackgroundlessTextAreaComponent(Sizing horizontalSizing, Sizing verticalSizing) {
@@ -101,6 +106,20 @@ public class BackgroundlessTextAreaComponent extends MultiLineEditBox {
     }
 
     /**
+     * Computes the component height needed to display {@code text} with the given component width.
+     *
+     * @param text           to display
+     * @param componentWidth the width allocated to the component
+     * @return the desired height
+     */
+    public static int computeHeight(String text, int componentWidth) {
+        final int innerWidth = componentWidth - 2 * innerPadding - inflateWidth;
+        final var font = Minecraft.getInstance().font;
+        final int lineCount = font.split(Component.literal(text), innerWidth).size();
+        return lineCount * font.lineHeight + 2 * innerPadding;
+    }
+
+    /**
      * When {@link #autoHeight auto-sizing}, resizes the component vertically to exactly fit the current
      * text at the current width. Changing the vertical sizing notifies the parent layout, which
      * re-inflates this component; the {@link #appliedContentHeight} guard keeps that from looping.
@@ -114,20 +133,6 @@ public class BackgroundlessTextAreaComponent extends MultiLineEditBox {
 
         this.appliedContentHeight = desired;
         this.verticalSizing(Sizing.fixed(desired));
-    }
-
-    /**
-     * Computes the component height needed to display {@code text} with the given component width.
-     *
-     * @param text           to display
-     * @param componentWidth the width allocated to the component
-     * @return the desired height
-     */
-    public static int computeHeight(String text, int componentWidth) {
-        final int innerWidth = componentWidth - 2 * innerPadding - inflateWidth;
-        final var font = Minecraft.getInstance().font;
-        final int lineCount = font.split(Component.literal(text), innerWidth).size();
-        return lineCount * font.lineHeight + 2 * innerPadding;
     }
 
     @Override
@@ -167,9 +172,9 @@ public class BackgroundlessTextAreaComponent extends MultiLineEditBox {
             var text =
                     this.editBox.hasCharacterLimit()
                             ? Component.translatable(
-                                    "gui.multiLineEditBox.character_limit",
-                                    this.editBox.value().length(),
-                                    this.editBox.characterLimit())
+                            "gui.multiLineEditBox.character_limit",
+                            this.editBox.value().length(),
+                            this.editBox.characterLimit())
                             : Component.literal(String.valueOf(this.editBox.value().length()));
 
             var textRenderer = Minecraft.getInstance().font;
@@ -193,14 +198,11 @@ public class BackgroundlessTextAreaComponent extends MultiLineEditBox {
 
     @Override
     public boolean keyPressed(@NonNull KeyEvent input) {
-        boolean result = super.keyPressed(input);
-
+        // Divergence from TextAreaComponent behavior -- let pressing tab cycle focus.
         if (input.isCycleFocus()) {
-            this.editBox.insertText("    ");
-            return true;
-        } else {
-            return result;
+            return false;
         }
+        return super.keyPressed(input);
     }
 
     @Override
@@ -220,11 +222,7 @@ public class BackgroundlessTextAreaComponent extends MultiLineEditBox {
         this.editBox.seekCursor(Whence.ABSOLUTE, cursor);
         ((MultilineTextFieldAccessor) this.editBox).owo$setSelectCursor(selection);
 
-        // Show the top of the text: when a fixed height can't fit the text, clip the overflow at
-        // the
-        // bottom rather than the top. setValue() parks the cursor at the end, which would otherwise
-        // scroll to the bottom via the cursor listener. No-op when auto-sized (the content always
-        // fits).
+        // Show the top of the text to clip overflow at top.
         this.setScrollAmount(0);
 
         this.resizeToContent();
