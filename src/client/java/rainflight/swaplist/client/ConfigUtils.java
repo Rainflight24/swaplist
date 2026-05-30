@@ -1,18 +1,21 @@
 package rainflight.swaplist.client;
 
-import org.jspecify.annotations.NonNull;
-import rainflight.swaplist.Swaplist;
+import static rainflight.swaplist.client.SwaplistClient.CONFIG;
 
 import java.util.*;
-
-import static rainflight.swaplist.client.SwaplistClient.CONFIG;
+import java.util.function.Consumer;
+import org.jspecify.annotations.NonNull;
+import rainflight.swaplist.Swaplist;
 
 /**
  * Utility class holding operations on config.
  */
 final class ConfigUtils {
-    private ConfigUtils() {
-    }
+    // data constants for SwaplistConfigModel
+    static final String finalDefaultListSuffix = "New List";
+    static final String firstDefaultList = ConfigUtils.uniqueKey(finalDefaultListSuffix, Set.of());
+
+    private ConfigUtils() {}
 
     /**
      * Converts an integer to its ordinal representation. Sourced from <a href="https://stackoverflow.com/a/6810409">stackoverflow.</a>
@@ -21,7 +24,8 @@ final class ConfigUtils {
      * @return Its ordinal representation.
      */
     private static String ordinal(int i) {
-        String[] suffixes = new String[]{"th", "st", "nd", "rd", "th", "th", "th", "th", "th", "th"};
+        String[] suffixes =
+                new String[] {"th", "st", "nd", "rd", "th", "th", "th", "th", "th", "th"};
         return switch (i % 100) {
             case 11, 12, 13 -> i + "th";
             default -> i + suffixes[i % 10];
@@ -41,11 +45,12 @@ final class ConfigUtils {
      * @param set    Set of taken names.
      * @return A unique key.
      */
-    private static @NonNull String uniqueKey(String suffix, Set<String> set) {
+    static @NonNull String uniqueKey(String suffix, Set<String> set) {
         int i = 1;
-        String key;
-        while (set.contains(key = ordinal(i) + " " + suffix)) {
+        String key = ordinal(i) + " " + suffix;
+        while (set.contains(key)) {
             i++;
+            key = ordinal(i) + " " + suffix;
         }
         return key;
     }
@@ -78,37 +83,38 @@ final class ConfigUtils {
      * @param list The todolist to save.
      */
     static void saveCurList(final TodoList list) {
-        final Map<String, TodoList> lists = new HashMap<>(CONFIG.lists());
+        final var lists = new HashMap<>(CONFIG.lists());
         lists.put(list.name, list);
         CONFIG.lists(lists);
     }
 
     /**
-     * Fetches a copy of the currently active TodoList from config, and performs sanitization.
+     * Fetches a copy of the currently active TodoList from config.
      *
      * @return A copy of the current TodoList.
      */
-    static @NonNull TodoList getCurList() {
-        Map<String, TodoList> lists = CONFIG.lists();
+    static TodoList getCurList() {
         String curKey = CONFIG.curActiveList();
-        TodoList oldList = lists.get(curKey);
+        TodoList list = CONFIG.lists().get(curKey);
 
-        if (oldList == null) {
-            String key;
-            Swaplist.LOGGER.warn("Could not find list {}.", curKey);
-
-            if (lists.isEmpty()) {
-                key = newList();
-                Swaplist.LOGGER.warn("Created list {}.", key);
-            } else {
-                key = getFirstList();
-            }
-            Swaplist.LOGGER.warn("Instead loading list {}.", key);
-            setActiveList(key);
-
-            return new TodoList(lists.get(key));
+        if (list == null) {
+            throw new IllegalStateException("Active list " + curKey + " is missing.");
         }
-        return new TodoList(oldList);
+        return new TodoList(list);
+    }
+
+    static void ensureValidActiveList() {
+        String oldList = CONFIG.curActiveList();
+        if (CONFIG.lists().isEmpty()) {
+            String nextList = newList();
+            setActiveList(nextList);
+            Swaplist.LOGGER.warn("No todolists found! Created a new one named {}", nextList);
+        } else if (!CONFIG.lists().containsKey(oldList)) {
+            String nextList = getFirstList();
+            setActiveList(nextList);
+            Swaplist.LOGGER.warn(
+                    "Active list {} is missing. Set active list to {}", oldList, nextList);
+        }
     }
 
     /**
@@ -118,8 +124,7 @@ final class ConfigUtils {
      * @return The lexicographically first key.
      */
     static @NonNull String getFirstList() {
-        SortedMap<String, TodoList> lists = new TreeMap<>(CONFIG.lists());
-        return lists.keySet().stream().findFirst().or(() -> Optional.of(newList())).get();
+        return Collections.min(CONFIG.lists().keySet());
     }
 
     /**
@@ -166,7 +171,8 @@ final class ConfigUtils {
         TodoList list = getCurList();
 
         if (lists.containsKey(newName)) {
-            Swaplist.LOGGER.warn("Ignored attempt at overwriting list {} during a rename.", newName);
+            Swaplist.LOGGER.warn(
+                    "Ignored attempt at overwriting list {} during a rename.", newName);
             return false;
         }
 
@@ -205,17 +211,27 @@ final class ConfigUtils {
     }
 
     /**
+     * Mutate the current todolist by index.
+     *
+     * @param idx    An index to affect.
+     * @param op     The operation to perform on the index.
+     * @param doSave Whether a config save should be triggered.
+     */
+    private static void mutateLine(int idx, Consumer<List<TodoList.ListItem>> op, boolean doSave) {
+        final TodoList list = getCurList();
+        if (!list.isValidIndex(idx)) return;
+        op.accept(list.items);
+        saveCurList(list);
+        if (doSave) save();
+    }
+
+    /**
      * Removes the nth line.
      *
      * @param idx The zero-indexed index to remove.
      */
     static void removeLine(int idx) {
-        final TodoList list = getCurList();
-        if (idx >= 0 && idx < list.items.size()) {
-            list.items.remove(idx);
-            saveCurList(list);
-            save();
-        }
+        mutateLine(idx, listItems -> listItems.remove(idx), true);
     }
 
     /**
@@ -224,29 +240,29 @@ final class ConfigUtils {
      * @param idx The zero-indexed index to toggle.
      */
     static void toggleLine(int idx) {
-        final TodoList list = getCurList();
-        if (idx >= 0 && idx < list.items.size()) {
-            TodoList.ListItem old = list.items.get(idx);
-            list.items.set(idx, new TodoList.ListItem(old.text, !old.toggled));
-            saveCurList(list);
-            save();
-        }
+        mutateLine(
+                idx,
+                listItems -> {
+                    TodoList.ListItem item = listItems.get(idx);
+                    item.toggled = !item.toggled;
+                },
+                true);
     }
 
     /**
      * Changes the nth checkbox's text. Fired per keystroke while editing, so it intentionally does
      * not {@link #save()}; the caller persists once at its commit point (e.g. on screen close).
      *
-     * @param idx The zero-indexed index to change.
+     * @param idx  The zero-indexed index to change.
      * @param text The box's new text.
      */
     static void changeLine(int idx, String text) {
-        final TodoList list = getCurList();
-        if (idx >= 0 && idx < list.items.size()) {
-            TodoList.ListItem old = list.items.get(idx);
-            list.items.set(idx, new TodoList.ListItem(text, old.toggled));
-            saveCurList(list);
-        }
+        mutateLine(
+                idx,
+                listItems -> {
+                    listItems.get(idx).text = text;
+                },
+                false);
     }
 
     /**
@@ -265,6 +281,7 @@ final class ConfigUtils {
 
     /**
      * Updates the list's width.
+     *
      * @param newWidth the list's new width
      */
     static void setWidth(int newWidth) {

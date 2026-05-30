@@ -1,17 +1,16 @@
 package rainflight.swaplist.client;
 
+import static rainflight.swaplist.client.SwaplistClient.CONFIG;
+
 import io.wispforest.owo.ui.core.Color;
 import io.wispforest.owo.ui.core.Positioning;
 import io.wispforest.owo.ui.hud.Hud;
-import net.minecraft.resources.Identifier;
-
 import java.util.Map;
 import java.util.function.Consumer;
-
-import static rainflight.swaplist.client.SwaplistClient.CONFIG;
+import net.minecraft.resources.Identifier;
 
 public class HudDisplay {
-    final private Identifier id;
+    private final Identifier id;
     private boolean visible = true;
 
     public HudDisplay(Identifier id) {
@@ -36,7 +35,8 @@ public class HudDisplay {
      */
     private static TodoListComponent makeHudComponent() {
         final TodoListComponent layout = new TodoListComponent(TodoListComponent.Overflow.TRUNCATE);
-        layout.positioning(Positioning.absolute(CONFIG.listHorizontalPos(), CONFIG.listVerticalPos()));
+        layout.positioning(
+                Positioning.absolute(CONFIG.listHorizontalPos(), CONFIG.listVerticalPos()));
         return layout;
     }
 

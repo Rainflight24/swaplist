@@ -1,15 +1,17 @@
 package rainflight.swaplist.client;
 
+import static rainflight.swaplist.client.SwaplistClient.CONFIG;
+
 import io.wispforest.owo.ui.base.BaseOwoScreen;
+import io.wispforest.owo.ui.component.UIComponents;
 import io.wispforest.owo.ui.container.DraggableContainer;
 import io.wispforest.owo.ui.container.FlowLayout;
 import io.wispforest.owo.ui.container.UIContainers;
 import io.wispforest.owo.ui.core.*;
 import io.wispforest.owo.ui.event.MouseDrag;
 import net.minecraft.client.input.MouseButtonEvent;
+import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.NotNull;
-
-import static rainflight.swaplist.client.SwaplistClient.CONFIG;
 
 public class TodoListScreen extends BaseOwoScreen<FlowLayout> {
 
@@ -41,9 +43,7 @@ public class TodoListScreen extends BaseOwoScreen<FlowLayout> {
                 .mouseDrag().subscribe(new DragListener<>(draggable));
 
         rootComponent.child(draggable);
-
     }
-
 
     @Override
     protected void init() {
@@ -67,7 +67,8 @@ public class TodoListScreen extends BaseOwoScreen<FlowLayout> {
         }
 
         @Override
-        public boolean onMouseDrag(MouseButtonEvent unusedClick, double unusedDeltaX, double unusedDeltaY) {
+        public boolean onMouseDrag(
+                MouseButtonEvent unusedClick, double unusedDeltaX, double unusedDeltaY) {
             ConfigUtils.setListPosition(draggableContainer.x(), draggableContainer.y());
             return true;
         }

@@ -25,13 +25,20 @@ public class TodoList {
         this(oldList.name, oldList.items);
     }
 
-    final public static class ListItem {
+    /**
+     * Determines if an index is within the bounds of the todolist.
+     */
+    public boolean isValidIndex(int idx) {
+        return idx >= 0 && idx < this.items.size();
+    }
+
+    public static final class ListItem {
         public String text;
         public boolean toggled;
 
-        @SuppressWarnings("unused") // default constructor necessary for owo-lib config serialization
-        public ListItem() {
-        }
+        @SuppressWarnings(
+                "unused") // default constructor necessary for owo-lib config serialization
+        public ListItem() {}
 
         public ListItem(String text, boolean toggled) {
             this.text = text;

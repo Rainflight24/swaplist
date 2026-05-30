@@ -1,16 +1,15 @@
 package rainflight.swaplist.client;
 
+import static rainflight.swaplist.client.SwaplistClient.CONFIG;
+
 import io.wispforest.owo.ui.component.SmallCheckboxComponent;
 import io.wispforest.owo.ui.component.UIComponents;
 import io.wispforest.owo.ui.container.FlowLayout;
 import io.wispforest.owo.ui.container.UIContainers;
 import io.wispforest.owo.ui.core.*;
+import java.util.List;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
-
-import java.util.List;
-
-import static rainflight.swaplist.client.SwaplistClient.CONFIG;
 
 /**
  * Placement-free todolist layout (title + checkbox/text rows) for the active list. Callers
@@ -22,8 +21,10 @@ public class TodoListComponent extends FlowLayout {
     private static final int LAYOUT_GAP = 3;
     private static final int LINE_SPACING = 2; // LabelComponent default spacing
     private static final int H_GAP = 1;
-    private static final int CHECKBOX_SIZE = 13; // Manually computed size for SmallCheckboxComponent.
+    private static final int CHECKBOX_SIZE =
+            13; // Manually computed size for SmallCheckboxComponent.
     private static final String OVERFLOW_TEXT = ". . .";
+    //    private final boolean asdf;
     private final Overflow overflow;
 
     public TodoListComponent(Overflow overflow) {
@@ -45,19 +46,19 @@ public class TodoListComponent extends FlowLayout {
         return lines * (font.lineHeight + lineSpacing) - lineSpacing;
     }
 
-    private static UIComponent layoutRow(TodoList.ListItem listItem, int index, int textWidth, Color textColor) {
+    private static UIComponent layoutRow(
+            TodoList.ListItem listItem, int index, int textWidth, Color textColor) {
         // Ignore SmallCheckboxComponent's text field, which does not support line wrapping.
-        var checkbox = UIComponents.smallCheckbox(null)
-                .checked(listItem.toggled);
+        var checkbox = UIComponents.smallCheckbox(null).checked(listItem.toggled);
         checkbox.onChanged().subscribe(new CheckboxListener(index));
 
         // The text area sizes its own height to fit the text.
-        var textArea = new BackgroundlessTextAreaComponent.Builder()
-                .setTextColor(textColor)
-                .setShowBackground(false)
-                .build(Sizing.fixed(textWidth));
-        textArea.text(listItem.text)
-                .onChanged().subscribe(new TextAreaListener(index));
+        var textArea =
+                new BackgroundlessTextAreaComponent.Builder()
+                        .setTextColor(textColor)
+                        .setShowBackground(false)
+                        .build(Sizing.fixed(textWidth));
+        textArea.text(listItem.text).onChanged().subscribe(new TextAreaListener(index));
 
         return UIContainers.horizontalFlow(Sizing.content(), Sizing.content())
                 .child(checkbox)
@@ -81,18 +82,25 @@ public class TodoListComponent extends FlowLayout {
 
         // Line wrapping requires manual width calculations.
         final int labelWidth = width - 2 * INSET_SIZE;
-        child(UIComponents.label(Component.literal(curList.name))
-                .color(textColor)
-                .maxWidth(labelWidth));
+        child(
+                UIComponents.label(Component.literal(curList.name))
+                        .color(textColor)
+                        .maxWidth(labelWidth));
 
-        final int textComponentWidth = width - 2 * INSET_SIZE // overall layout cost
-                - CHECKBOX_SIZE - H_GAP // inner layout cost
-                // empty right-hand side space to ignore
-                + BackgroundlessTextAreaComponent.innerPadding + BackgroundlessTextAreaComponent.inflateWidth;
+        final int textComponentWidth =
+                width
+                        - 2 * INSET_SIZE // overall layout cost
+                        - CHECKBOX_SIZE
+                        - H_GAP // inner layout cost
+                        // empty right-hand side space to ignore
+                        + BackgroundlessTextAreaComponent.innerPadding
+                        + BackgroundlessTextAreaComponent.inflateWidth;
 
         final int[] textHeights = new int[items.size()];
         for (int i = 0; i < items.size(); i++) {
-            textHeights[i] = BackgroundlessTextAreaComponent.computeHeight(items.get(i).text, textComponentWidth);
+            textHeights[i] =
+                    BackgroundlessTextAreaComponent.computeHeight(
+                            items.get(i).text, textComponentWidth);
         }
 
         final int displayCount = displayCount(curList.name, textHeights, labelWidth);
@@ -102,7 +110,10 @@ public class TodoListComponent extends FlowLayout {
             child(layoutRow(items.get(i), i, textComponentWidth, textColor));
         }
         if (truncated) {
-            child(UIComponents.label(Component.literal(OVERFLOW_TEXT)).color(textColor).maxWidth(labelWidth));
+            child(
+                    UIComponents.label(Component.literal(OVERFLOW_TEXT))
+                            .color(textColor)
+                            .maxWidth(labelWidth));
         }
 
         return this;
@@ -140,9 +151,6 @@ public class TodoListComponent extends FlowLayout {
         return count;
     }
 
-    /**
-     * How to handle content taller than the configured list height.
-     */
     // Handles content taller than the configured height.
     public enum Overflow {
         /**
@@ -156,7 +164,7 @@ public class TodoListComponent extends FlowLayout {
     }
 
     private static class CheckboxListener implements SmallCheckboxComponent.OnChanged {
-        final private int idx;
+        private final int idx;
 
         public CheckboxListener(int idx) {
             this.idx = idx;
@@ -169,7 +177,7 @@ public class TodoListComponent extends FlowLayout {
     }
 
     private static class TextAreaListener implements BackgroundlessTextAreaComponent.OnChanged {
-        final private int idx;
+        private final int idx;
 
         public TextAreaListener(int idx) {
             this.idx = idx;

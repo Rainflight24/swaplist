@@ -6,49 +6,49 @@ import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.minecraft.client.KeyMapping;
-import net.minecraft.client.Minecraft;
 import net.minecraft.resources.Identifier;
 import org.lwjgl.glfw.GLFW;
 import rainflight.swaplist.Swaplist;
 
 public class SwaplistClient implements ClientModInitializer {
-    public static final rainflight.swaplist.client.SwaplistConfig CONFIG = rainflight.swaplist.client.SwaplistConfig.createAndLoad();
+    public static final rainflight.swaplist.client.SwaplistConfig CONFIG =
+            rainflight.swaplist.client.SwaplistConfig.createAndLoad();
     protected static HudDisplay hudDisplay;
 
     @Override
     public void onInitializeClient() {
 
-        KeyMapping.Category CATEGORY = new KeyMapping.Category(
-                Identifier.fromNamespaceAndPath(Swaplist.MOD_ID, "swaplist")
-        );
+        KeyMapping.Category category =
+                new KeyMapping.Category(
+                        Identifier.fromNamespaceAndPath(Swaplist.MOD_ID, "swaplist"));
 
-        KeyMapping openTestScreen = KeyBindingHelper.registerKeyBinding(
-                new KeyMapping(
-                        "key.swaplist.open_test_screen", // TODO: Translations
-                        InputConstants.Type.KEYSYM,
-                        GLFW.GLFW_KEY_J,
-                        CATEGORY
-                ));
+        KeyMapping openTodoListScreen =
+                KeyBindingHelper.registerKeyBinding(
+                        new KeyMapping(
+                                "key.swaplist.open_todolist_screen", // TODO: Translations
+                                InputConstants.Type.KEYSYM,
+                                GLFW.GLFW_KEY_J,
+                                category));
 
         CommandRegister.registerCommands();
 
-        ClientTickEvents.END_CLIENT_TICK.register(client -> {
-            while (openTestScreen.consumeClick()) {
-                if (client.player != null) {
-                    // TODO: see https://docs.fabricmc.net/develop/rendering/gui/custom-screens#closing-the-screen on returning to the previous screen
-                    if (Minecraft.getInstance().screen instanceof TodoListScreen)
-                        continue;
-                    Minecraft.getInstance().setScreen(
-                            new TodoListScreen()
-                    );
-                }
-            }
-        });
+        ClientTickEvents.END_CLIENT_TICK.register(
+                client -> {
+                    while (openTodoListScreen.consumeClick()) {
+                        if (client.player != null) {
+                            // TODO: see
+                            // https://docs.fabricmc.net/develop/rendering/gui/custom-screens#closing-the-screen on returning to the previous screen
+                            if (client.screen instanceof TodoListScreen) continue;
+                            client.setScreen(new TodoListScreen());
+                        }
+                    }
+                });
+
+        ConfigUtils.ensureValidActiveList();
 
         hudDisplay = new HudDisplay(Identifier.fromNamespaceAndPath(Swaplist.MOD_ID, "hud"));
 
         // Auto-save on modification is disabled, so flush any deferred edits on clean shutdown.
         ClientLifecycleEvents.CLIENT_STOPPING.register(client -> ConfigUtils.save());
     }
-
 }
