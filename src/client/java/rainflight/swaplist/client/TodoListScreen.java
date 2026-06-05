@@ -1,7 +1,5 @@
 package rainflight.swaplist.client;
 
-import static rainflight.swaplist.client.SwaplistClient.CONFIG;
-
 import io.wispforest.owo.ui.base.BaseOwoScreen;
 import io.wispforest.owo.ui.container.DraggableContainer;
 import io.wispforest.owo.ui.container.FlowLayout;
@@ -13,10 +11,24 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jspecify.annotations.NonNull;
 
+import static rainflight.swaplist.client.SwaplistClient.CONFIG;
+
 public class TodoListScreen extends BaseOwoScreen<FlowLayout> {
 
     // Captured before init() hides the HUD, so onClose() restores the prior state.
     private final boolean hudWasVisible = SwaplistClient.hudDisplay.isVisible();
+
+    static @NonNull TodoListDraggable makeDraggableList(boolean checkboxFocus) {
+        var listLayout = new TodoListComponent(TodoListComponent.Overflow.UNBOUNDED, checkboxFocus);
+        var draggable = new TodoListDraggable(Sizing.content(), Sizing.content(), listLayout);
+        draggable
+                .foreheadSize(0)
+                .positioning(
+                        Positioning.absolute(CONFIG.listHorizontalPos(), CONFIG.listVerticalPos()))
+                .mouseDrag()
+                .subscribe(new DragListener<>(draggable));
+        return draggable;
+    }
 
     @Override
     protected @NotNull OwoUIAdapter<FlowLayout> createAdapter() {
@@ -31,18 +43,6 @@ public class TodoListScreen extends BaseOwoScreen<FlowLayout> {
                 .verticalAlignment(VerticalAlignment.CENTER);
 
         rootComponent.child(makeDraggableList(true));
-    }
-
-    static @NonNull TodoListDraggable makeDraggableList(boolean checkboxFocus) {
-        var listLayout = new TodoListComponent(TodoListComponent.Overflow.UNBOUNDED, checkboxFocus);
-        var draggable = new TodoListDraggable(Sizing.content(), Sizing.content(), listLayout);
-        draggable
-                .foreheadSize(0)
-                .positioning(
-                        Positioning.absolute(CONFIG.listHorizontalPos(), CONFIG.listVerticalPos()))
-                .mouseDrag()
-                .subscribe(new DragListener<>(draggable));
-        return draggable;
     }
 
     @Override
@@ -82,6 +82,7 @@ public class TodoListScreen extends BaseOwoScreen<FlowLayout> {
         private TodoListDraggable(
                 Sizing horizontalSizing, Sizing verticalSizing, TodoListComponent child) {
             super(horizontalSizing, verticalSizing, child);
+            this.cursorStyle(CursorStyle.MOVE);
         }
 
         @Override
