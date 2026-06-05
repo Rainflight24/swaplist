@@ -11,6 +11,8 @@ import io.wispforest.owo.ui.parsing.UIParsing;
 import io.wispforest.owo.util.EventSource;
 import io.wispforest.owo.util.EventStream;
 import io.wispforest.owo.util.Observable;
+import java.util.Map;
+import java.util.function.Consumer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.MultiLineEditBox;
@@ -22,9 +24,6 @@ import net.minecraft.network.chat.Component;
 import org.jspecify.annotations.NonNull;
 import org.w3c.dom.Element;
 import rainflight.swaplist.Swaplist;
-
-import java.util.Map;
-import java.util.function.Consumer;
 
 /**
  * Copy of {@code io.wispforest.owo.ui.component.TextAreaComponent} with no background.
@@ -172,9 +171,9 @@ public class BackgroundlessTextAreaComponent extends MultiLineEditBox {
             var text =
                     this.editBox.hasCharacterLimit()
                             ? Component.translatable(
-                            "gui.multiLineEditBox.character_limit",
-                            this.editBox.value().length(),
-                            this.editBox.characterLimit())
+                                    "gui.multiLineEditBox.character_limit",
+                                    this.editBox.value().length(),
+                                    this.editBox.characterLimit())
                             : Component.literal(String.valueOf(this.editBox.value().length()));
 
             var textRenderer = Minecraft.getInstance().font;

@@ -34,7 +34,8 @@ public class HudDisplay {
      * Adds the HUD's absolute placement to a fresh list component.
      */
     private static TodoListComponent makeHudComponent() {
-        final TodoListComponent layout = new TodoListComponent(TodoListComponent.Overflow.TRUNCATE);
+        final TodoListComponent layout =
+                new TodoListComponent(TodoListComponent.Overflow.TRUNCATE, true);
         layout.positioning(
                 Positioning.absolute(CONFIG.listHorizontalPos(), CONFIG.listVerticalPos()));
         return layout;

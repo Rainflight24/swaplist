@@ -42,7 +42,6 @@ public class SwaplistClient implements ClientModInitializer {
                     }
                 });
 
-
         hudDisplay = new HudDisplay(Identifier.fromNamespaceAndPath(Swaplist.MOD_ID, "hud"));
         ChatTodoOverlay.addListToChatScreen();
         ConfigUtils.ensureValidActiveList();

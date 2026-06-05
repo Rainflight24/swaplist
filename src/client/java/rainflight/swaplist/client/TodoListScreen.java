@@ -26,15 +26,15 @@ public class TodoListScreen extends BaseOwoScreen<FlowLayout> {
     @Override
     protected void build(FlowLayout rootComponent) {
         rootComponent
-                .surface(Surface.VANILLA_TRANSLUCENT)
+                .surface(Surface.vanillaPanorama(false).and(Surface.blur(5, 10)))
                 .horizontalAlignment(HorizontalAlignment.CENTER)
                 .verticalAlignment(VerticalAlignment.CENTER);
 
-        rootComponent.child(makeDraggableList());
+        rootComponent.child(makeDraggableList(true));
     }
 
-    static @NonNull TodoListDraggable makeDraggableList() {
-        var listLayout = new TodoListComponent(TodoListComponent.Overflow.UNBOUNDED);
+    static @NonNull TodoListDraggable makeDraggableList(boolean checkboxFocus) {
+        var listLayout = new TodoListComponent(TodoListComponent.Overflow.UNBOUNDED, checkboxFocus);
         var draggable = new TodoListDraggable(Sizing.content(), Sizing.content(), listLayout);
         draggable
                 .foreheadSize(0)
