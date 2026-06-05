@@ -11,6 +11,7 @@ import io.wispforest.owo.ui.event.MouseDrag;
 import net.minecraft.client.input.MouseButtonEvent;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.NonNull;
 
 public class TodoListScreen extends BaseOwoScreen<FlowLayout> {
 
@@ -29,11 +30,11 @@ public class TodoListScreen extends BaseOwoScreen<FlowLayout> {
                 .horizontalAlignment(HorizontalAlignment.CENTER)
                 .verticalAlignment(VerticalAlignment.CENTER);
 
-        // The constructor already applies a full INSET_SIZE padding, so the title sits inset
-        // from the top edge without any separate blank drag strip above it.
-        var listLayout = new TodoListComponent(TodoListComponent.Overflow.UNBOUNDED);
+        rootComponent.child(makeDraggableList());
+    }
 
-        // The title is the sole drag handle (see TodoListDraggable), so there is no forehead.
+    static @NonNull TodoListDraggable makeDraggableList() {
+        var listLayout = new TodoListComponent(TodoListComponent.Overflow.UNBOUNDED);
         var draggable = new TodoListDraggable(Sizing.content(), Sizing.content(), listLayout);
         draggable
                 .foreheadSize(0)
@@ -41,8 +42,7 @@ public class TodoListScreen extends BaseOwoScreen<FlowLayout> {
                         Positioning.absolute(CONFIG.listHorizontalPos(), CONFIG.listVerticalPos()))
                 .mouseDrag()
                 .subscribe(new DragListener<>(draggable));
-
-        rootComponent.child(draggable);
+        return draggable;
     }
 
     @Override
@@ -78,7 +78,7 @@ public class TodoListScreen extends BaseOwoScreen<FlowLayout> {
      * A {@link DraggableContainer} whose drag handle is the list's title rather than a blank top
      * strip.
      */
-    private static class TodoListDraggable extends DraggableContainer<TodoListComponent> {
+    private static final class TodoListDraggable extends DraggableContainer<TodoListComponent> {
         private TodoListDraggable(
                 Sizing horizontalSizing, Sizing verticalSizing, TodoListComponent child) {
             super(horizontalSizing, verticalSizing, child);

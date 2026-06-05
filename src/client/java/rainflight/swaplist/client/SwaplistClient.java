@@ -13,7 +13,7 @@ import rainflight.swaplist.Swaplist;
 public class SwaplistClient implements ClientModInitializer {
     public static final rainflight.swaplist.client.SwaplistConfig CONFIG =
             rainflight.swaplist.client.SwaplistConfig.createAndLoad();
-    protected static HudDisplay hudDisplay;
+    public static HudDisplay hudDisplay;
 
     @Override
     public void onInitializeClient() {
@@ -36,17 +36,16 @@ public class SwaplistClient implements ClientModInitializer {
                 client -> {
                     while (openTodoListScreen.consumeClick()) {
                         if (client.player != null) {
-                            // TODO: see
-                            // https://docs.fabricmc.net/develop/rendering/gui/custom-screens#closing-the-screen on returning to the previous screen
                             if (client.screen instanceof TodoListScreen) continue;
                             client.setScreen(new TodoListScreen());
                         }
                     }
                 });
 
-        ConfigUtils.ensureValidActiveList();
 
         hudDisplay = new HudDisplay(Identifier.fromNamespaceAndPath(Swaplist.MOD_ID, "hud"));
+        ChatTodoOverlay.addListToChatScreen();
+        ConfigUtils.ensureValidActiveList();
 
         // Auto-save on modification is disabled, so flush any deferred edits on clean shutdown.
         ClientLifecycleEvents.CLIENT_STOPPING.register(client -> ConfigUtils.save());
