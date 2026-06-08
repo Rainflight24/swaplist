@@ -30,6 +30,8 @@ public class HudDisplay {
         CONFIG.subscribeToCurActiveList(stringConsumer);
         CONFIG.subscribeToListColor(colorConsumer);
         CONFIG.subscribeToLists(listsConsumer);
+
+        rebuild();
     }
 
     /**
