@@ -23,6 +23,7 @@ public class SwaplistConfigModel {
     @Hook public int listHeight = 500;
     @Hook public int listHorizontalPos = 0;
     @Hook public int listVerticalPos = 100;
+    @Hook public boolean listVisible = true;
     @Hook public Color listColor = new Color(0, 64, 255);
 
     @Hook @ExcludeFromScreen

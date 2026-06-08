@@ -15,11 +15,9 @@ import static rainflight.swaplist.client.SwaplistClient.CONFIG;
 
 public class TodoListScreen extends BaseOwoScreen<FlowLayout> {
 
-    // Captured before init() hides the HUD, so onClose() restores the prior state.
-    private final boolean hudWasVisible = SwaplistClient.hudDisplay.isVisible();
-
     static @NonNull TodoListDraggable makeDraggableList(boolean checkboxFocus) {
-        var listLayout = new TodoListComponent(TodoListComponent.Overflow.UNBOUNDED, checkboxFocus);
+        var listLayout =
+                new TodoListComponent(TodoListComponent.Overflow.UNBOUNDED, checkboxFocus, true);
         var draggable = new TodoListDraggable(Sizing.content(), Sizing.content(), listLayout);
         draggable
                 .foreheadSize(0)
@@ -38,7 +36,6 @@ public class TodoListScreen extends BaseOwoScreen<FlowLayout> {
     @Override
     protected void build(FlowLayout rootComponent) {
         rootComponent
-                .surface(Surface.vanillaPanorama(false).and(Surface.blur(5, 10)))
                 .horizontalAlignment(HorizontalAlignment.CENTER)
                 .verticalAlignment(VerticalAlignment.CENTER);
 
@@ -47,16 +44,16 @@ public class TodoListScreen extends BaseOwoScreen<FlowLayout> {
 
     @Override
     protected void init() {
-        SwaplistClient.hudDisplay.setVisible(false);
         super.init();
+        SwaplistClient.hudDisplay.setHideUnderScreen(true);
     }
 
     @Override
     public void onClose() {
         // Commit edits accumulated while the screen was open.
         ConfigUtils.save();
-        SwaplistClient.hudDisplay.setVisible(hudWasVisible);
         super.onClose();
+        SwaplistClient.hudDisplay.setHideUnderScreen(false);
     }
 
     private static class DragListener<T extends UIComponent> implements MouseDrag {

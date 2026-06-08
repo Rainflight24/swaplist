@@ -11,16 +11,18 @@ import net.minecraft.resources.Identifier;
 
 public class HudDisplay {
     private final Identifier id;
-    private boolean visible = true;
+    private boolean hideUnderScreen = false;
 
     public HudDisplay(Identifier id) {
         this.id = id;
 
+        Consumer<Boolean> boolConsumer = unused -> rebuild();
         Consumer<Integer> intConsumer = unused -> rebuild();
         Consumer<String> stringConsumer = unused -> rebuild();
         Consumer<Color> colorConsumer = unused -> rebuild();
         Consumer<Map<String, TodoList>> listsConsumer = unused -> rebuild();
 
+        CONFIG.subscribeToListVisible(boolConsumer);
         CONFIG.subscribeToListWidth(intConsumer);
         CONFIG.subscribeToListHeight(intConsumer);
         CONFIG.subscribeToListHorizontalPos(intConsumer);
@@ -35,7 +37,7 @@ public class HudDisplay {
      */
     private static TodoListComponent makeHudComponent() {
         final TodoListComponent layout =
-                new TodoListComponent(TodoListComponent.Overflow.TRUNCATE, true);
+                new TodoListComponent(TodoListComponent.Overflow.TRUNCATE, true, false);
         layout.positioning(
                 Positioning.absolute(CONFIG.listHorizontalPos(), CONFIG.listVerticalPos()));
         return layout;
@@ -45,7 +47,7 @@ public class HudDisplay {
      * Pulls relevant info from config and (re)puts the current list on hud, if it is already visible.
      */
     void rebuild() {
-        if (visible) {
+        if (isVisible()) {
             Hud.remove(id);
             Hud.add(id, HudDisplay::makeHudComponent);
         } else {
@@ -61,11 +63,14 @@ public class HudDisplay {
     }
 
     public boolean isVisible() {
-        return visible;
+        return CONFIG.listVisible() && !hideUnderScreen;
     }
 
-    public void setVisible(boolean visible) {
-        this.visible = visible;
+    /**
+     * Non-persistently changes HUD visibility of the todolist. Useful when the list is on a non-HUD surface.
+     */
+    public void setHideUnderScreen(boolean hideUnderScreen) {
+        this.hideUnderScreen = hideUnderScreen;
         rebuild();
     }
 }

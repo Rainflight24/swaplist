@@ -338,4 +338,9 @@ final class ConfigUtils {
         setActiveList(key);
         return Optional.of(key);
     }
+
+    static void setHudVisibility(boolean visible) {
+        CONFIG.listVisible(visible);
+        save();
+    }
 }

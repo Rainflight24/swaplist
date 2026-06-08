@@ -3,6 +3,7 @@ package rainflight.swaplist.client;
 import io.wispforest.owo.ui.container.FlowLayout;
 import io.wispforest.owo.ui.core.Sizing;
 import io.wispforest.owo.ui.layers.Layers;
+import net.fabricmc.fabric.api.client.screen.v1.ScreenEvents;
 import net.minecraft.client.gui.screens.ChatScreen;
 import net.minecraft.client.input.KeyEvent;
 
@@ -13,8 +14,19 @@ public final class ChatTodoOverlay {
         Layers.add(
                 (sx, sy) -> new NoKbFocusLayout(sx, sy, FlowLayout.Algorithm.VERTICAL),
                 (instance) -> {
-                    SwaplistClient.hudDisplay.setVisible(false);
+                    SwaplistClient.hudDisplay.setHideUnderScreen(true);
                     instance.adapter.rootComponent.child(TodoListScreen.makeDraggableList(false));
+
+                    // When ChatScreen closes, disable the HUD override.
+                    ScreenEvents.AFTER_INIT.register(
+                            (client, screeen , scaledWidth, scaledHeight) -> {
+                                ScreenEvents.remove(screeen).register(
+                                        (screen -> {
+                                            SwaplistClient.hudDisplay.setHideUnderScreen(false);
+                                        })
+                                );
+                            }
+                    );
                 },
                 ChatScreen.class);
     }

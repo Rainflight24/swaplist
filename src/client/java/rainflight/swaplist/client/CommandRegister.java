@@ -40,14 +40,15 @@ public class CommandRegister {
                                             ClientCommandManager.literal("show")
                                                     .executes(
                                                             context -> {
-                                                                hudDisplay.setVisible(true);
+                                                                ConfigUtils.setHudVisibility(true);
+
                                                                 return 1;
                                                             }))
                                     .then(
                                             ClientCommandManager.literal("hide")
                                                     .executes(
                                                             context -> {
-                                                                hudDisplay.setVisible(false);
+                                                                ConfigUtils.setHudVisibility(false);
                                                                 return 1;
                                                             }))
                                     .then(
