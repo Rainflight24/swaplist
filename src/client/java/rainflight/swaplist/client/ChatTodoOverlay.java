@@ -33,6 +33,8 @@ public final class ChatTodoOverlay {
 
     static class NoKbFocusLayout extends FlowLayout {
 
+        public static final int ALT_MODIFIER = 0b100;
+
         protected NoKbFocusLayout(
                 Sizing horizontalSizing, Sizing verticalSizing, Algorithm algorithm) {
             super(horizontalSizing, verticalSizing, algorithm);
@@ -50,7 +52,7 @@ public final class ChatTodoOverlay {
                     && input.hasAltDown()) {
                 // Blank the alt modifier to block switching focus with it.
                 return super.onKeyPress(
-                        new KeyEvent(input.key(), input.scancode(), input.modifiers() & 0b011));
+                        new KeyEvent(input.key(), input.scancode(), input.modifiers() & ~ALT_MODIFIER));
             }
             return super.onKeyPress(input);
         }
