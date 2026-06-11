@@ -94,7 +94,8 @@ public class TodoListComponent extends FlowLayout {
         titleLabel =
                 UIComponents.label(Component.literal(curList.name))
                         .color(textColor)
-                        .maxWidth(labelWidth);
+                        .maxWidth(labelWidth)
+                        .shadow(true);
         this.child(titleLabel);
 
         final int textComponentWidth =
@@ -123,7 +124,8 @@ public class TodoListComponent extends FlowLayout {
             this.child(
                     UIComponents.label(Component.literal(OVERFLOW_TEXT))
                             .color(textColor)
-                            .maxWidth(labelWidth));
+                            .maxWidth(labelWidth)
+                            .shadow(true));
         }
     }
 

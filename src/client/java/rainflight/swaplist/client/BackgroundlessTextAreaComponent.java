@@ -55,7 +55,7 @@ public class BackgroundlessTextAreaComponent extends MultiLineEditBox {
                 verticalSizing,
                 Component.empty(),
                 Color.WHITE,
-                false,
+                true,
                 Color.WHITE,
                 false);
     }
@@ -288,7 +288,7 @@ public class BackgroundlessTextAreaComponent extends MultiLineEditBox {
     public static class Builder {
         private Color textColor = Color.WHITE;
         private boolean showBackground = true;
-        private boolean textShadow = false;
+        private boolean textShadow = true;
         private Color cursorColor = Color.WHITE;
 
         private Component message = Component.empty();
