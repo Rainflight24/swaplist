@@ -105,6 +105,14 @@ public class BackgroundlessTextAreaComponent extends MultiLineEditBox {
     }
 
     /**
+     * Don't ever render the scrollbar.
+     */
+    @Override
+    protected boolean scrollbarVisible() {
+        return false;
+    }
+
+    /**
      * Computes the component height needed to display {@code text} with the given component width.
      *
      * @param text           to display
@@ -212,8 +220,10 @@ public class BackgroundlessTextAreaComponent extends MultiLineEditBox {
         int cursor = this.editBox.cursor();
         int selection = ((MultilineTextFieldAccessor) this.editBox).owo$getSelectCursor();
 
+        // Divergence from owo behavior -- remove the 9 px gap allocated for the scrollbar, since we're hiding it
+        // anyway.
         ((MultilineTextFieldAccessor) this.editBox)
-                .owo$setWidth(this.width() - this.totalInnerPadding() - 9);
+                .owo$setWidth(this.width() - this.totalInnerPadding());
         this.editBox.setValue(this.getValue(), false);
 
         super.inflate(space);
@@ -222,7 +232,7 @@ public class BackgroundlessTextAreaComponent extends MultiLineEditBox {
         this.editBox.seekCursor(Whence.ABSOLUTE, cursor);
         ((MultilineTextFieldAccessor) this.editBox).owo$setSelectCursor(selection);
 
-        // Show the top of the text to clip overflow at top.
+        // Divergence: Show the top of the text to clip overflow at top.
         this.setScrollAmount(0);
 
         this.resizeToContent();

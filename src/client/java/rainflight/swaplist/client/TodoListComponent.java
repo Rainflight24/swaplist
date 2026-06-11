@@ -102,10 +102,7 @@ public class TodoListComponent extends FlowLayout {
                 width
                         - 2 * INSET_SIZE // overall layout cost
                         - CHECKBOX_SIZE
-                        - H_GAP // inner layout cost
-                        // empty right-hand side space to ignore
-                        + BackgroundlessTextAreaComponent.innerPadding
-                        + BackgroundlessTextAreaComponent.inflateWidth;
+                        - H_GAP; // inner layout cost
 
         final int[] textHeights = new int[items.size()];
         for (int i = 0; i < items.size(); i++) {
