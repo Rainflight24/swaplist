@@ -114,7 +114,8 @@ public class BackgroundlessTextAreaComponent extends MultiLineEditBox {
     public static int computeHeight(String text, int componentWidth) {
         final int innerWidth = componentWidth - 2 * innerPadding - inflateWidth;
         final var font = Minecraft.getInstance().font;
-        final int lineCount = font.split(Component.literal(text), innerWidth).size();
+        // A text input area should have enough height for at least one row, even if text is empty.
+        final int lineCount = Math.max(1, font.split(Component.literal(text), innerWidth).size());
         return lineCount * font.lineHeight + 2 * innerPadding;
     }
 
