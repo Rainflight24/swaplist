@@ -220,8 +220,8 @@ public class BackgroundlessTextAreaComponent extends MultiLineEditBox {
         int cursor = this.editBox.cursor();
         int selection = ((MultilineTextFieldAccessor) this.editBox).owo$getSelectCursor();
 
-        // Divergence from owo behavior -- remove the 9 px gap allocated for the scrollbar, since we're hiding it
-        // anyway.
+        // Divergence from owo behavior -- remove the 9 px gap allocated for the scrollbar, since
+        // we're hiding it anyway.
         ((MultilineTextFieldAccessor) this.editBox)
                 .owo$setWidth(this.width() - this.totalInnerPadding());
         this.editBox.setValue(this.getValue(), false);

@@ -1,5 +1,7 @@
 package rainflight.swaplist.client;
 
+import static rainflight.swaplist.client.SwaplistClient.CONFIG;
+
 import io.wispforest.owo.ui.base.BaseOwoScreen;
 import io.wispforest.owo.ui.container.DraggableContainer;
 import io.wispforest.owo.ui.container.FlowLayout;
@@ -10,8 +12,6 @@ import net.minecraft.client.input.MouseButtonEvent;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jspecify.annotations.NonNull;
-
-import static rainflight.swaplist.client.SwaplistClient.CONFIG;
 
 public class TodoListScreen extends BaseOwoScreen<FlowLayout> {
 

@@ -16,23 +16,20 @@ public final class ChatTodoOverlay {
                 (instance) -> {
                     SwaplistClient.hudDisplay.setHideUnderScreen(true);
                     instance.adapter.rootComponent.child(TodoListScreen.makeDraggableList(false));
-
-
                 },
                 ChatScreen.class);
 
         // When ChatScreen closes, disable the HUD override.
         ScreenEvents.AFTER_INIT.register(
-                (client, screeen , scaledWidth, scaledHeight) -> {
+                (client, screeen, scaledWidth, scaledHeight) -> {
                     if (screeen instanceof ChatScreen) {
-                        ScreenEvents.remove(screeen).register(
-                                (screen -> {
-                                    SwaplistClient.hudDisplay.setHideUnderScreen(false);
-                                })
-                        );
+                        ScreenEvents.remove(screeen)
+                                .register(
+                                        (screen ->
+                                                SwaplistClient.hudDisplay.setHideUnderScreen(
+                                                        false)));
                     }
-                }
-        );
+                });
     }
 
     static class NoKbFocusLayout extends FlowLayout {
@@ -56,7 +53,8 @@ public final class ChatTodoOverlay {
                     && input.hasAltDown()) {
                 // Blank the alt modifier to block switching focus with it.
                 return super.onKeyPress(
-                        new KeyEvent(input.key(), input.scancode(), input.modifiers() & ~ALT_MODIFIER));
+                        new KeyEvent(
+                                input.key(), input.scancode(), input.modifiers() & ~ALT_MODIFIER));
             }
             return super.onKeyPress(input);
         }
