@@ -12,7 +12,7 @@ public final class ChatTodoOverlay {
     static void addListToChatScreen() {
 
         Layers.add(
-                (sx, sy) -> new NoKbFocusLayout(sx, sy, FlowLayout.Algorithm.VERTICAL),
+                (sx, sy) -> new FocusLayout(sx, sy, FlowLayout.Algorithm.VERTICAL),
                 (instance) -> {
                     SwaplistClient.hudDisplay.setHideUnderScreen(true);
                     instance.adapter.rootComponent.child(TodoListScreen.makeDraggableList(false));
@@ -32,30 +32,40 @@ public final class ChatTodoOverlay {
                 });
     }
 
-    static class NoKbFocusLayout extends FlowLayout {
+    /**
+     * Special layout that allows keyboard focus shifts only when a child in it is focused.
+     */
+    static class FocusLayout extends FlowLayout {
 
-        public static final int ALT_MODIFIER = 0b100;
-
-        protected NoKbFocusLayout(
+        protected FocusLayout(
                 Sizing horizontalSizing, Sizing verticalSizing, Algorithm algorithm) {
             super(horizontalSizing, verticalSizing, algorithm);
         }
 
         /**
          * Disallow controlling the chat overlay in most ways (focus changing, selections). This prevents clashing with
-         * the chat screen.
+         * the chat screen. This is necessary as {@code BaseParentUIComponent} does not consume focus cycling inputs,
+         * causing input duplication across the chat screen.
          **/
         @Override
         public boolean onKeyPress(KeyEvent input) {
+            if (this.focusHandler == null) return false;
+
+            // Accept focus cycling only when a child is focused.
             if (input.isCycleFocus()) {
+                if (this.focusHandler.focused() != null) {
+                    this.focusHandler.cycle(!input.hasShiftDown());
+                    return true;
+                }
                 return false;
-            } else if ((input.isUp() || input.isDown() || input.isLeft() || input.isRight())
-                    && input.hasAltDown()) {
-                // Blank the alt modifier to block switching focus with it.
-                return super.onKeyPress(
-                        new KeyEvent(
-                                input.key(), input.scancode(), input.modifiers() & ~ALT_MODIFIER));
+            } else if ((input.isUp() || input.isDown() || input.isLeft() || input.isRight()) && input.hasAltDown()) {
+                if (this.focusHandler.focused() != null) {
+                    this.focusHandler.moveFocus(input.key());
+                    return true;
+                }
+                return false;
             }
+
             return super.onKeyPress(input);
         }
     }
