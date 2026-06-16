@@ -22,19 +22,26 @@ public class TodoListComponent extends FlowLayout {
     private static final int LAYOUT_GAP = 3;
     private static final int LINE_SPACING = 2; // LabelComponent default spacing
     private static final int H_GAP = 1;
-    private static final int CHECKBOX_SIZE =
-            13; // Manually computed size for SmallCheckboxComponent.
+    // Manually computed size for SmallCheckboxComponent.
+    private static final int CHECKBOX_SIZE = 13;
     private static final String OVERFLOW_TEXT = ". . .";
     private final Overflow overflow;
-    private final boolean checkboxFocus;
+    // Whether selectable objects (checkboxes, buttons) can be focused (e.g. with tab).
+    private final boolean selectableFocus;
+    // Whether to show the "new row" button. Editable surfaces (edit screen, chat overlay) set this.
+    private final boolean showAddRow;
 
     // The title label, captured each build() so the drag wrapper can locate its bounds.
     private LabelComponent titleLabel;
+    // The last text input of the list, captured each build() so the New List button knows what to
+    // change focus to.
+    private BackgroundlessTextAreaComponent lastTextArea;
 
-    public TodoListComponent(Overflow overflow, boolean checkboxFocus) {
+    public TodoListComponent(Overflow overflow, boolean selectableFocus, boolean showAddRow) {
         super(Sizing.fixed(CONFIG.listWidth()), Sizing.content(), Algorithm.VERTICAL);
         this.overflow = overflow;
-        this.checkboxFocus = checkboxFocus;
+        this.selectableFocus = selectableFocus;
+        this.showAddRow = showAddRow;
 
         this.gap(LAYOUT_GAP)
                 .padding(Insets.of(INSET_SIZE))
@@ -45,29 +52,30 @@ public class TodoListComponent extends FlowLayout {
         build();
     }
 
-    private static int labelHeight(String text, int width, int lineSpacing) {
+    private static int labelHeight(String text, int width) {
         final var font = Minecraft.getInstance().font;
         final int lines = font.split(Component.literal(text), width).size();
-        return lines * (font.lineHeight + lineSpacing) - lineSpacing;
+        return lines * (font.lineHeight + TodoListComponent.LINE_SPACING)
+                - TodoListComponent.LINE_SPACING;
     }
 
     private UIComponent layoutRow(
             TodoList.ListItem listItem, int index, int textWidth, Color textColor) {
         // Ignore SmallCheckboxComponent's text field, which does not support line wrapping.
-        // var checkbox = UIComponents.smallCheckbox(null).checked(listItem.toggled);
         var checkbox =
-                checkboxFocus
+                selectableFocus
                         ? new SmallCheckboxComponent(null)
                         : new FocuslessSmallCheckboxComponent(null);
         checkbox.checked(listItem.toggled).onChanged().subscribe(new CheckboxListener(index));
 
-        // The text area sizes its own height to fit the text.
+        // The text area sizes its own height to fit its text.
         var textArea =
                 new BackgroundlessTextAreaComponent.Builder()
                         .setTextColor(textColor)
                         .setShowBackground(false)
                         .build(Sizing.fixed(textWidth));
         textArea.text(listItem.text).onChanged().subscribe(new TextAreaListener(index));
+        lastTextArea = textArea;
 
         return UIContainers.horizontalFlow(Sizing.content(), Sizing.content())
                 .child(checkbox)
@@ -124,12 +132,34 @@ public class TodoListComponent extends FlowLayout {
                             .maxWidth(labelWidth)
                             .shadow(true));
         }
+        if (showAddRow) {
+            appendAddRow();
+        }
+    }
+
+    /**
+     * Appends a clickable "new row" button which adds an empty row to the current list.
+     */
+    private void appendAddRow() {
+        this.child(
+                UIComponents.button(
+                        Component.literal("New Row"),
+                        (buttonComponent -> {
+                            ConfigUtils.pushLine("");
+                            this.build();
+
+                            // Change focus to the newly added row.
+                            if (lastTextArea != null) {
+                                assert this.focusHandler() != null;
+                                this.focusHandler().focus(lastTextArea, FocusSource.KEYBOARD_CYCLE);
+                            }
+                        })));
     }
 
     /**
      * Whether the absolute point {@code (x, y)} lies within the title's drag-handle region.
      */
-    public boolean isOverTitle(int unusedX, int y) {
+    public boolean isOverTitle(int ignoredX, int y) {
         return titleLabel.y() <= y && y <= titleLabel.y() + titleLabel.height();
     }
 
@@ -142,7 +172,7 @@ public class TodoListComponent extends FlowLayout {
             return textHeights.length;
         }
 
-        final int titleHeight = labelHeight(title, labelWidth, LINE_SPACING);
+        final int titleHeight = labelHeight(title, labelWidth);
         int heightNeeded = titleHeight;
         for (int textHeight : textHeights) {
             heightNeeded += Math.max(CHECKBOX_SIZE, textHeight) + LAYOUT_GAP;
@@ -154,7 +184,7 @@ public class TodoListComponent extends FlowLayout {
         }
 
         // Reserve the overflow label's height so the box never exceeds the limit.
-        final int overflowHeight = labelHeight(OVERFLOW_TEXT, labelWidth, LINE_SPACING);
+        final int overflowHeight = labelHeight(OVERFLOW_TEXT, labelWidth);
         int heightLeft = heightUsable - titleHeight - (overflowHeight + LAYOUT_GAP);
         int count = 0;
         for (int textHeight : textHeights) {
@@ -177,12 +207,7 @@ public class TodoListComponent extends FlowLayout {
         UNBOUNDED
     }
 
-    private static class CheckboxListener implements SmallCheckboxComponent.OnChanged {
-        private final int idx;
-
-        public CheckboxListener(int idx) {
-            this.idx = idx;
-        }
+    private record CheckboxListener(int idx) implements SmallCheckboxComponent.OnChanged {
 
         @Override
         public void onChanged(boolean nowChecked) {
@@ -190,12 +215,7 @@ public class TodoListComponent extends FlowLayout {
         }
     }
 
-    private static class TextAreaListener implements BackgroundlessTextAreaComponent.OnChanged {
-        private final int idx;
-
-        public TextAreaListener(int idx) {
-            this.idx = idx;
-        }
+    private record TextAreaListener(int idx) implements BackgroundlessTextAreaComponent.OnChanged {
 
         @Override
         public void onChanged(String value) {
