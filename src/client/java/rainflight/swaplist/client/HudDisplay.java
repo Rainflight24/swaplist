@@ -39,7 +39,7 @@ public class HudDisplay {
      */
     private static TodoListComponent makeHudComponent() {
         final TodoListComponent layout =
-                new TodoListComponent(TodoListComponent.Overflow.TRUNCATE, true, false);
+                new TodoListComponent(TodoListComponent.Overflow.TRUNCATE, true);
         layout.positioning(
                 Positioning.absolute(CONFIG.listHorizontalPos(), CONFIG.listVerticalPos()));
         return layout;

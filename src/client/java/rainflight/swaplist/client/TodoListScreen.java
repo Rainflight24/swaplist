@@ -16,8 +16,7 @@ import org.jspecify.annotations.NonNull;
 public class TodoListScreen extends BaseOwoScreen<FlowLayout> {
 
     static @NonNull TodoListDraggable makeDraggableList(boolean checkboxFocus) {
-        var listLayout =
-                new TodoListComponent(TodoListComponent.Overflow.UNBOUNDED, checkboxFocus, true);
+        var listLayout = new TodoListComponent(TodoListComponent.Overflow.UNBOUNDED, checkboxFocus);
         var draggable = new TodoListDraggable(Sizing.content(), Sizing.content(), listLayout);
         draggable
                 .foreheadSize(0)
