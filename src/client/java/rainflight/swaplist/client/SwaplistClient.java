@@ -32,6 +32,22 @@ public class SwaplistClient implements ClientModInitializer {
                                 GLFW.GLFW_KEY_J,
                                 category));
 
+        KeyMapping openTestScreen =
+                KeyBindingHelper.registerKeyBinding(
+                        new KeyMapping(
+                                "key.swaplist.open_test_screen", // TODO: Translations
+                                InputConstants.Type.KEYSYM,
+                                GLFW.GLFW_KEY_Y,
+                                category));
+
+        KeyMapping openTestModelScreen =
+                KeyBindingHelper.registerKeyBinding(
+                        new KeyMapping(
+                                "key.swaplist.open_model_screen", // TODO: Translations
+                                InputConstants.Type.KEYSYM,
+                                GLFW.GLFW_KEY_MINUS,
+                                category));
+
         CommandRegister.registerCommands();
 
         ClientTickEvents.END_CLIENT_TICK.register(
@@ -42,6 +58,21 @@ public class SwaplistClient implements ClientModInitializer {
                             client.setScreen(new TodoListScreen());
                         }
                     }
+
+                    while (openTestScreen.consumeClick()) {
+                        if (client.player != null) {
+                            if (client.screen instanceof ListsScreen) continue;
+                            client.setScreen(new ListsScreen(Component.empty()));
+                        }
+                    }
+
+                    //                    while (openTestModelScreen.consumeClick()) {
+                    //                        if (client.player != null) {
+                    //                            if (client.screen instanceof MyModelScreen)
+                    // continue;
+                    //                            client.setScreen(new MyModelScreen());
+                    //                        }
+                    //                    }
                 });
 
         hudDisplay = new HudDisplay(Swaplist.of("hud"));
