@@ -1,13 +1,12 @@
 package rainflight.swaplist.client.ui;
 
-import static rainflight.swaplist.client.SwaplistClient.CONFIG;
-
 import io.wispforest.owo.ui.component.LabelComponent;
 import io.wispforest.owo.ui.component.SmallCheckboxComponent;
 import io.wispforest.owo.ui.component.UIComponents;
 import io.wispforest.owo.ui.container.FlowLayout;
 import io.wispforest.owo.ui.container.UIContainers;
 import io.wispforest.owo.ui.core.*;
+import io.wispforest.owo.ui.inject.GreedyInputUIComponent;
 import io.wispforest.owo.ui.parsing.UIParsing;
 import java.util.ArrayList;
 import java.util.List;

@@ -17,8 +17,8 @@ import rainflight.swaplist.client.SwaplistClient;
 
 public class TodoListScreen extends BaseOwoScreen<FlowLayout> {
 
-    static @NonNull TodoListDraggable makeDraggableList(boolean checkboxFocus) {
-        var listLayout = new TodoListComponent(TodoListComponent.Overflow.UNBOUNDED, checkboxFocus);
+    static @NonNull TodoListDraggable makeDraggableList() {
+        var listLayout = new TodoListComponent(TodoListComponent.Overflow.UNBOUNDED, true);
         var draggable = new TodoListDraggable(Sizing.content(), Sizing.content(), listLayout);
         draggable
                 .foreheadSize(0)
@@ -40,7 +40,7 @@ public class TodoListScreen extends BaseOwoScreen<FlowLayout> {
                 .horizontalAlignment(HorizontalAlignment.CENTER)
                 .verticalAlignment(VerticalAlignment.CENTER);
 
-        rootComponent.child(makeDraggableList(true));
+        rootComponent.child(makeDraggableList());
     }
 
     @Override
