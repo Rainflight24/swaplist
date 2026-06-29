@@ -1,13 +1,14 @@
-package rainflight.swaplist.client;
-
-import static rainflight.swaplist.client.SwaplistClient.CONFIG;
+package rainflight.swaplist.client.ui;
 
 import io.wispforest.owo.ui.core.Color;
 import io.wispforest.owo.ui.core.Positioning;
 import io.wispforest.owo.ui.hud.Hud;
+import net.minecraft.resources.Identifier;
+import rainflight.swaplist.client.ConfigUtils;
+import rainflight.swaplist.client.TodoList;
+
 import java.util.Map;
 import java.util.function.Consumer;
-import net.minecraft.resources.Identifier;
 
 public class HudDisplay {
     private final Identifier id;

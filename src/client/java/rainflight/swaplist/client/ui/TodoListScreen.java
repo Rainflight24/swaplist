@@ -1,4 +1,4 @@
-package rainflight.swaplist.client;
+package rainflight.swaplist.client.ui;
 
 import static rainflight.swaplist.client.SwaplistClient.CONFIG;
 
@@ -12,6 +12,8 @@ import net.minecraft.client.input.MouseButtonEvent;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jspecify.annotations.NonNull;
+import rainflight.swaplist.client.ConfigUtils;
+import rainflight.swaplist.client.SwaplistClient;
 
 public class TodoListScreen extends BaseOwoScreen<FlowLayout> {
 

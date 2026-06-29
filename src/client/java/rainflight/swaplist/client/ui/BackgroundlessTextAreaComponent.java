@@ -1,4 +1,4 @@
-package rainflight.swaplist.client;
+package rainflight.swaplist.client.ui;
 
 import io.wispforest.owo.mixin.ui.access.MultiLineEditBoxAccessor;
 import io.wispforest.owo.mixin.ui.access.MultilineTextFieldAccessor;

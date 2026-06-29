@@ -1,4 +1,4 @@
-package rainflight.swaplist.client;
+package rainflight.swaplist.client.ui;
 
 import static rainflight.swaplist.client.SwaplistClient.CONFIG;
 
@@ -8,10 +8,16 @@ import io.wispforest.owo.ui.component.UIComponents;
 import io.wispforest.owo.ui.container.FlowLayout;
 import io.wispforest.owo.ui.container.UIContainers;
 import io.wispforest.owo.ui.core.*;
+import io.wispforest.owo.ui.parsing.UIParsing;
+import java.util.ArrayList;
 import java.util.List;
+import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.input.KeyEvent;
 import net.minecraft.network.chat.Component;
+import rainflight.swaplist.Swaplist;
+import rainflight.swaplist.client.ConfigUtils;
+import rainflight.swaplist.client.TodoList;
 
 /**
  * Todolist layout. Pulls and mutates config for related information.
@@ -25,9 +31,14 @@ public class TodoListComponent extends FlowLayout {
     // Manually computed size for SmallCheckboxComponent.
     private static final int CHECKBOX_SIZE = 13;
     private static final String OVERFLOW_TEXT = ". . .";
+
+    static {
+        UIParsing.registerFactory(
+                Swaplist.of("todolist"),
+                element -> new TodoListComponent(Overflow.UNBOUNDED, false));
+    }
+
     private final Overflow overflow;
-    // Whether selectable objects (checkboxes, buttons) can be focused (e.g. with tab).
-    private final boolean selectableFocus;
     // Whether to show the "new row" button. Editable surfaces (edit screen, chat overlay) set this.
     private final boolean showAddRow;
 
@@ -36,11 +47,12 @@ public class TodoListComponent extends FlowLayout {
     // The last text input of the list, captured each build() so the New List button knows what to
     // change focus to.
     private BackgroundlessTextAreaComponent lastTextArea;
+    private List<SmallCheckboxComponent>
+            checkboxes; // Cache for toggling a specific checkbox via hotbar swap.
 
-    public TodoListComponent(Overflow overflow, boolean selectableFocus, boolean showAddRow) {
+    public TodoListComponent(Overflow overflow, boolean showAddRow) {
         super(Sizing.fixed(CONFIG.listWidth()), Sizing.content(), Algorithm.VERTICAL);
         this.overflow = overflow;
-        this.selectableFocus = selectableFocus;
         this.showAddRow = showAddRow;
 
         this.gap(LAYOUT_GAP)
@@ -59,14 +71,15 @@ public class TodoListComponent extends FlowLayout {
                 - TodoListComponent.LINE_SPACING;
     }
 
+    /**
+     * Creates one row of the layout. Must be called during build().
+     */
     private UIComponent layoutRow(
             TodoList.ListItem listItem, int index, int textWidth, Color textColor) {
         // Ignore SmallCheckboxComponent's text field, which does not support line wrapping.
-        var checkbox =
-                selectableFocus
-                        ? new SmallCheckboxComponent(null)
-                        : new FocuslessSmallCheckboxComponent(null);
+        var checkbox = new SmallCheckboxComponent(null);
         checkbox.checked(listItem.toggled).onChanged().subscribe(new CheckboxListener(index));
+        checkboxes.add(checkbox);
 
         // The text area sizes its own height to fit its text.
         var textArea =
@@ -122,6 +135,7 @@ public class TodoListComponent extends FlowLayout {
         final int displayCount = displayCount(curList.name, textHeights, labelWidth);
         final boolean truncated = displayCount < items.size();
 
+        this.checkboxes = new ArrayList<>();
         for (int i = 0; i < displayCount; i++) {
             this.child(layoutRow(items.get(i), i, textComponentWidth, textColor));
         }
@@ -134,6 +148,13 @@ public class TodoListComponent extends FlowLayout {
         }
         if (showAddRow) {
             appendAddRow();
+        }
+
+        // Subscribe non-handled keypresses to this's onKeyPress().
+        ArrayList<UIComponent> descendants = new ArrayList<>();
+        this.collectDescendants(descendants);
+        for (UIComponent descendant : descendants) {
+            descendant.keyPress().subscribe(this::onKeyPress);
         }
     }
 
@@ -195,6 +216,25 @@ public class TodoListComponent extends FlowLayout {
         return count;
     }
 
+    @Override
+    public boolean canFocus(FocusSource source) {
+        return true;
+    }
+
+    @Override
+    public boolean onKeyPress(KeyEvent input) {
+        KeyMapping[] keyHotbarSlots = Minecraft.getInstance().options.keyHotbarSlots;
+
+        for (int i = 0; i < Math.min(keyHotbarSlots.length, checkboxes.size()); ++i) {
+            if (keyHotbarSlots[i].matches(input)) {
+                checkboxes.get(i).toggle();
+                return true;
+            }
+        }
+
+        return super.onKeyPress(input);
+    }
+
     // Handles content taller than the configured height.
     public enum Overflow {
         /**
@@ -220,20 +260,6 @@ public class TodoListComponent extends FlowLayout {
         @Override
         public void onChanged(String value) {
             ConfigUtils.changeLine(idx, value);
-        }
-    }
-
-    /**
-     * Variant checkbox with mouse-only controls.
-     */
-    static class FocuslessSmallCheckboxComponent extends SmallCheckboxComponent {
-        public FocuslessSmallCheckboxComponent(Component label) {
-            super(label);
-        }
-
-        @Override
-        public boolean onKeyPress(KeyEvent input) {
-            return false;
         }
     }
 }

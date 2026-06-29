@@ -10,7 +10,7 @@ import rainflight.swaplist.Swaplist;
 /**
  * Utility class holding operations on config.
  */
-final class ConfigUtils {
+public final class ConfigUtils {
     // data constants for SwaplistConfigModel
     static final String finalDefaultListSuffix = "New List";
     static final String firstDefaultList = ConfigUtils.uniqueKey(finalDefaultListSuffix, Set.of());
@@ -32,7 +32,7 @@ final class ConfigUtils {
         };
     }
 
-    static @NonNull String uniqueListKey() {
+    public static @NonNull String uniqueListKey() {
         var map = CONFIG.lists();
         return ConfigUtils.uniqueKey(CONFIG.defaultListSuffix(), map.keySet());
     }
@@ -45,7 +45,7 @@ final class ConfigUtils {
      * @param set    Set of taken names.
      * @return A unique key.
      */
-    static @NonNull String uniqueKey(String suffix, Set<String> set) {
+    public static @NonNull String uniqueKey(String suffix, Set<String> set) {
         int i = 1;
         String key = ordinal(i) + " " + suffix;
         while (set.contains(key)) {
@@ -61,7 +61,7 @@ final class ConfigUtils {
      * @param key The key of the list to check existence for.
      * @return Whether the list exists.
      */
-    static boolean isListExistent(String key) {
+    public static boolean isListExistent(String key) {
         return CONFIG.lists().containsKey(key);
     }
 
@@ -72,7 +72,7 @@ final class ConfigUtils {
      * {@link #setListPosition}) intentionally skip it and defer to an explicit save at their
      * commit point (e.g. closing the edit screen).
      */
-    static void save() {
+    public static void save() {
         CONFIG.save();
     }
 
@@ -82,7 +82,7 @@ final class ConfigUtils {
      *
      * @param list The todolist to save.
      */
-    static void saveCurList(final TodoList list) {
+    public static void saveCurList(final TodoList list) {
         final var lists = new HashMap<>(CONFIG.lists());
         lists.put(list.name, list);
         CONFIG.lists(lists);
@@ -93,7 +93,7 @@ final class ConfigUtils {
      *
      * @return A copy of the current TodoList.
      */
-    static TodoList getCurList() {
+    public static TodoList getCurList() {
         String curKey = CONFIG.curActiveList();
         TodoList list = CONFIG.lists().get(curKey);
 
@@ -103,7 +103,7 @@ final class ConfigUtils {
         return new TodoList(list);
     }
 
-    static void ensureValidActiveList() {
+    public static void ensureValidActiveList() {
         String oldList = CONFIG.curActiveList();
         if (CONFIG.lists().isEmpty()) {
             String nextList = newList();
@@ -123,7 +123,7 @@ final class ConfigUtils {
      *
      * @return The lexicographically first key.
      */
-    static @NonNull String getFirstList() {
+    public static @NonNull String getFirstList() {
         return Collections.min(CONFIG.lists().keySet());
     }
 
@@ -132,7 +132,7 @@ final class ConfigUtils {
      *
      * @return The key of the created list. It will end with the defaultListSuffix.
      */
-    static @NonNull String newList() {
+    public static @NonNull String newList() {
         Map<String, TodoList> lists = new HashMap<>(CONFIG.lists());
         String key = uniqueListKey();
 
@@ -148,7 +148,7 @@ final class ConfigUtils {
      * @param toDelete The key of the list to delete.
      * @return Whether the given list was successfully deleted.
      */
-    static boolean deleteList(String toDelete) {
+    public static boolean deleteList(String toDelete) {
         var lists = new HashMap<>(CONFIG.lists());
 
         if (lists.containsKey(toDelete)) {
@@ -166,7 +166,7 @@ final class ConfigUtils {
      * @param newName The current list's new name.
      * @return Whether the rename succeeded.
      */
-    static boolean renameCurrent(String newName) {
+    public static boolean renameCurrent(String newName) {
         final Map<String, TodoList> lists = new HashMap<>(CONFIG.lists());
         TodoList list = getCurList();
 
@@ -191,7 +191,7 @@ final class ConfigUtils {
      *
      * @param line The text to display.
      */
-    static void pushLine(String line) {
+    public static void pushLine(String line) {
         final TodoList list = getCurList();
         list.items.add(new TodoList.ListItem(line, false));
         saveCurList(list);
@@ -201,7 +201,7 @@ final class ConfigUtils {
     /**
      * Removes the most recently added line of text.
      */
-    static void popLine() {
+    public static void popLine() {
         final TodoList list = getCurList();
         if (!list.items.isEmpty()) {
             list.items.removeLast();
@@ -230,7 +230,7 @@ final class ConfigUtils {
      *
      * @param idx The zero-indexed index to remove.
      */
-    static void removeLine(int idx) {
+    public static void removeLine(int idx) {
         mutateLine(idx, listItems -> listItems.remove(idx), true);
     }
 
@@ -239,7 +239,7 @@ final class ConfigUtils {
      *
      * @param idx The zero-indexed index to toggle.
      */
-    static void toggleLine(int idx) {
+    public static void toggleLine(int idx) {
         mutateLine(
                 idx,
                 listItems -> {
@@ -256,7 +256,7 @@ final class ConfigUtils {
      * @param idx  The zero-indexed index to change.
      * @param text The box's new text.
      */
-    static void changeLine(int idx, String text) {
+    public static void changeLine(int idx, String text) {
         mutateLine(
                 idx,
                 listItems -> {
@@ -270,7 +270,7 @@ final class ConfigUtils {
      *
      * @param key The key of the newly active list.
      */
-    static void setActiveList(String key) {
+    public static void setActiveList(String key) {
         if (CONFIG.lists().containsKey(key)) {
             CONFIG.curActiveList(key);
             save();
@@ -284,7 +284,7 @@ final class ConfigUtils {
      *
      * @param newWidth the list's new width
      */
-    static void setWidth(int newWidth) {
+    public static void setWidth(int newWidth) {
         CONFIG.listWidth(newWidth);
         save();
     }
@@ -297,7 +297,7 @@ final class ConfigUtils {
      * @param x The new horizontal position.
      * @param y The new vertical position.
      */
-    static void setListPosition(int x, int y) {
+    public static void setListPosition(int x, int y) {
         CONFIG.listHorizontalPos(x);
         CONFIG.listVerticalPos(y);
     }
@@ -307,7 +307,7 @@ final class ConfigUtils {
      *
      * @param templateName The key of the newly saved template.
      */
-    static void saveCurAsTemplate(String templateName) {
+    public static void saveCurAsTemplate(String templateName) {
         TodoList list = getCurList();
         var templates = new HashMap<>(CONFIG.templates());
         templates.put(templateName, list);
@@ -324,7 +324,7 @@ final class ConfigUtils {
      * @param templateName The key of the template to load.
      * @return The key of the newly created list, or empty if no such template exists.
      */
-    static Optional<String> loadTemplate(String templateName) {
+    public static Optional<String> loadTemplate(String templateName) {
         TodoList template = CONFIG.templates().get(templateName);
         if (template == null) {
             return Optional.empty();
@@ -339,7 +339,7 @@ final class ConfigUtils {
         return Optional.of(key);
     }
 
-    static void setHudVisibility(boolean visible) {
+    public static void setHudVisibility(boolean visible) {
         CONFIG.listVisible(visible);
         save();
     }

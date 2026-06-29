@@ -1,4 +1,4 @@
-package rainflight.swaplist.client;
+package rainflight.swaplist.client.ui;
 
 import io.wispforest.owo.ui.container.FlowLayout;
 import io.wispforest.owo.ui.core.ParentUIComponent;
@@ -9,18 +9,20 @@ import io.wispforest.owo.ui.util.FocusHandler;
 import java.util.ArrayList;
 import net.fabricmc.fabric.api.client.screen.v1.ScreenEvents;
 import net.minecraft.client.gui.screens.ChatScreen;
+import net.minecraft.client.input.CharacterEvent;
 import net.minecraft.client.input.KeyEvent;
 import org.lwjgl.glfw.GLFW;
+import rainflight.swaplist.client.SwaplistClient;
 
 public final class ChatTodoOverlay {
 
-    static void addListToChatScreen() {
+    public static void addListToChatScreen() {
 
         Layers.add(
                 (sx, sy) -> new FocusLayout(sx, sy, FlowLayout.Algorithm.VERTICAL),
                 (instance) -> {
                     SwaplistClient.hudDisplay.setHideUnderScreen(true);
-                    instance.adapter.rootComponent.child(TodoListScreen.makeDraggableList(false));
+                    instance.adapter.rootComponent.child(TodoListScreen.makeDraggableList());
                 },
                 ChatScreen.class);
 
@@ -72,6 +74,17 @@ public final class ChatTodoOverlay {
             }
 
             return super.onKeyPress(input);
+        }
+
+        @Override
+        public boolean onCharTyped(CharacterEvent input) {
+            boolean result = super.onCharTyped(input);
+            if (this.focusHandler == null) return false;
+            if (this.focusHandler.focused() != null) {
+                return true; // Consume non-handled chars typed when this is focused so chat does
+                // not receive them.
+            }
+            return result;
         }
 
         @Override
