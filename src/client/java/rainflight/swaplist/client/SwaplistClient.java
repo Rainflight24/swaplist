@@ -6,11 +6,12 @@ import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.minecraft.client.KeyMapping;
-import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import org.lwjgl.glfw.GLFW;
 import rainflight.swaplist.Swaplist;
-import rainflight.swaplist.client.ui.*;
+import rainflight.swaplist.client.ui.ChatTodoOverlay;
+import rainflight.swaplist.client.ui.HudDisplay;
+import rainflight.swaplist.client.ui.TodoListScreen;
 
 public class SwaplistClient implements ClientModInitializer {
     public static final rainflight.swaplist.client.SwaplistConfig CONFIG =
@@ -31,22 +32,6 @@ public class SwaplistClient implements ClientModInitializer {
                                 GLFW.GLFW_KEY_J,
                                 category));
 
-        KeyMapping openTestScreen =
-                KeyBindingHelper.registerKeyBinding(
-                        new KeyMapping(
-                                "key.swaplist.open_test_screen", // TODO: Translations
-                                InputConstants.Type.KEYSYM,
-                                GLFW.GLFW_KEY_Y,
-                                category));
-
-        KeyMapping openTestModelScreen =
-                KeyBindingHelper.registerKeyBinding(
-                        new KeyMapping(
-                                "key.swaplist.open_model_screen", // TODO: Translations
-                                InputConstants.Type.KEYSYM,
-                                GLFW.GLFW_KEY_MINUS,
-                                category));
-
         CommandRegister.registerCommands();
 
         ClientTickEvents.END_CLIENT_TICK.register(
@@ -57,20 +42,6 @@ public class SwaplistClient implements ClientModInitializer {
                             client.setScreen(new TodoListScreen());
                         }
                     }
-
-                    while (openTestScreen.consumeClick()) {
-                        if (client.player != null) {
-                            if (client.screen instanceof ListsScreen) continue;
-                            client.setScreen(new ListsScreen(Component.empty()));
-                        }
-                    }
-
-//                    while (openTestModelScreen.consumeClick()) {
-//                        if (client.player != null) {
-//                            if (client.screen instanceof MyModelScreen) continue;
-//                            client.setScreen(new MyModelScreen());
-//                        }
-//                    }
                 });
 
         hudDisplay = new HudDisplay(Swaplist.of("hud"));
