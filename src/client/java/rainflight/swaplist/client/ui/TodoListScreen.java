@@ -8,6 +8,7 @@ import io.wispforest.owo.ui.container.FlowLayout;
 import io.wispforest.owo.ui.container.UIContainers;
 import io.wispforest.owo.ui.core.*;
 import io.wispforest.owo.ui.event.MouseDrag;
+import net.minecraft.client.input.KeyEvent;
 import net.minecraft.client.input.MouseButtonEvent;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -89,6 +90,15 @@ public class TodoListScreen extends BaseOwoScreen<FlowLayout> {
                 return this;
             }
             return super.childAt(x, y);
+        }
+
+        @Override
+        public boolean onKeyPress(KeyEvent input) {
+            boolean result = super.onKeyPress(input);
+            if (result) return true;
+
+            // Forward unhandled keypresses to the TodoListComponent.
+            return this.child.onKeyPress(input);
         }
     }
 }

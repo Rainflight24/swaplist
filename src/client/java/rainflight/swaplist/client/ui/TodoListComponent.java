@@ -226,10 +226,13 @@ public class TodoListComponent extends FlowLayout {
     public boolean onKeyPress(KeyEvent input) {
         KeyMapping[] keyHotbarSlots = Minecraft.getInstance().options.keyHotbarSlots;
 
-        for (int i = 0; i < Math.min(keyHotbarSlots.length, checkboxes.size()); ++i) {
-            if (keyHotbarSlots[i].matches(input)) {
-                checkboxes.get(i).toggle();
-                return true;
+        if (this.focusHandler() != null
+                && !(this.focusHandler().focused() instanceof GreedyInputUIComponent)) {
+            for (int i = 0; i < Math.min(keyHotbarSlots.length, checkboxes.size()); ++i) {
+                if (keyHotbarSlots[i].matches(input)) {
+                    checkboxes.get(i).toggle();
+                    return true;
+                }
             }
         }
 
