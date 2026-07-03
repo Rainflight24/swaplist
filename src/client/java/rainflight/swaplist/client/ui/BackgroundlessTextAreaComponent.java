@@ -19,7 +19,6 @@ import net.minecraft.client.gui.components.MultiLineEditBox;
 import net.minecraft.client.gui.components.MultilineTextField;
 import net.minecraft.client.gui.components.Whence;
 import net.minecraft.client.input.KeyEvent;
-import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.network.chat.Component;
 import org.jspecify.annotations.NonNull;
 import org.w3c.dom.Element;
@@ -31,7 +30,6 @@ import rainflight.swaplist.Swaplist;
 @SuppressWarnings({"unused", "UnusedReturnValue"}) // functionality from owo-lib left as-is
 public class BackgroundlessTextAreaComponent extends MultiLineEditBox {
 
-    public static int inflateWidth = 9; // see inflate()
     public static int innerPadding = 4; // see innerPadding()
     protected final Observable<String> textValue = Observable.of("");
     protected final EventStream<OnChanged> changedEvents = OnChanged.newStream();
@@ -105,14 +103,6 @@ public class BackgroundlessTextAreaComponent extends MultiLineEditBox {
     }
 
     /**
-     * Don't ever render the scrollbar.
-     */
-    @Override
-    protected boolean scrollbarVisible() {
-        return false;
-    }
-
-    /**
      * Computes the component height needed to display {@code text} with the given component width.
      *
      * @param text           to display
@@ -120,11 +110,19 @@ public class BackgroundlessTextAreaComponent extends MultiLineEditBox {
      * @return the desired height
      */
     public static int computeHeight(String text, int componentWidth) {
-        final int innerWidth = componentWidth - 2 * innerPadding - inflateWidth;
+        final int innerWidth = componentWidth - 2 * innerPadding;
         final var font = Minecraft.getInstance().font;
         // A text input area should have enough height for at least one row, even if text is empty.
         final int lineCount = Math.max(1, font.split(Component.literal(text), innerWidth).size());
         return lineCount * font.lineHeight + 2 * innerPadding;
+    }
+
+    /**
+     * Don't ever render the scrollbar.
+     */
+    @Override
+    protected boolean scrollbarVisible() {
+        return false;
     }
 
     /**
@@ -193,15 +191,6 @@ public class BackgroundlessTextAreaComponent extends MultiLineEditBox {
                     this.getY() + this.height + 3,
                     0xa0a0a0);
         }
-    }
-
-    @Override
-    public boolean mouseClicked(@NonNull MouseButtonEvent click, boolean doubled) {
-        this.width -= 9;
-        var result = super.mouseClicked(click, doubled);
-        this.width += 9;
-
-        return result;
     }
 
     @Override
