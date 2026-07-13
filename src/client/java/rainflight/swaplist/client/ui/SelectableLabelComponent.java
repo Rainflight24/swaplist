@@ -1,20 +1,13 @@
 package rainflight.swaplist.client.ui;
 
 import io.wispforest.owo.ui.component.LabelComponent;
-import io.wispforest.owo.ui.parsing.UIParsing;
+import io.wispforest.owo.ui.core.OwoUIGraphics;
 import net.minecraft.network.chat.Component;
-import rainflight.swaplist.Swaplist;
 
 /**
- * Focusable LabelComponent.
+ * LabelComponent highlightable on mouse focus.
  */
 public class SelectableLabelComponent extends LabelComponent {
-    static {
-        UIParsing.registerFactory(
-                Swaplist.of("selectable-label"),
-                element -> new SelectableLabelComponent(Component.empty()));
-    }
-
     public SelectableLabelComponent(Component text) {
         super(text);
     }
@@ -22,5 +15,17 @@ public class SelectableLabelComponent extends LabelComponent {
     @Override
     public boolean canFocus(FocusSource source) {
         return true;
+    }
+
+    @Override
+    public void draw(OwoUIGraphics graphics, int mouseX, int mouseY, float partialTicks, float delta) {
+        super.draw(graphics, mouseX, mouseY, partialTicks, delta);
+        if (this.focusHandler() != null && this.focusHandler().focused() == this) {
+            super.drawFocusHighlight(graphics, mouseX, mouseY, partialTicks, delta);
+        }
+    }
+
+    @Override
+    public void drawFocusHighlight(OwoUIGraphics context, int mouseX, int mouseY, float partialTicks, float delta) {
     }
 }

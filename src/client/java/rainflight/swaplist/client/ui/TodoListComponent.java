@@ -9,14 +9,12 @@ import io.wispforest.owo.ui.container.FlowLayout;
 import io.wispforest.owo.ui.container.UIContainers;
 import io.wispforest.owo.ui.core.*;
 import io.wispforest.owo.ui.inject.GreedyInputUIComponent;
-import io.wispforest.owo.ui.parsing.UIParsing;
 import java.util.ArrayList;
 import java.util.List;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.input.KeyEvent;
 import net.minecraft.network.chat.Component;
-import rainflight.swaplist.Swaplist;
 import rainflight.swaplist.client.ConfigUtils;
 import rainflight.swaplist.client.TodoList;
 
