@@ -33,12 +33,6 @@ public class TodoListComponent extends FlowLayout {
     private static final int CHECKBOX_SIZE = 13;
     private static final String OVERFLOW_TEXT = ". . .";
 
-    static {
-        UIParsing.registerFactory(
-                Swaplist.of("todolist"),
-                element -> new TodoListComponent(Overflow.UNBOUNDED, false));
-    }
-
     private final Overflow overflow;
     // Whether to show the "new row" button. Editable surfaces (edit screen, chat overlay) set this.
     private final boolean showAddRow;

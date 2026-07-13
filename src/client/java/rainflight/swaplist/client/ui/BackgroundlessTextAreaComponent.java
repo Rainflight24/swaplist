@@ -25,7 +25,7 @@ import org.w3c.dom.Element;
 import rainflight.swaplist.Swaplist;
 
 /**
- * Copy of {@code io.wispforest.owo.ui.component.TextAreaComponent} with no background.
+ * Copy of {@code io.wispforest.owo.ui.component.TextAreaComponent} with no background, and no scrollbar.
  */
 @SuppressWarnings({"unused", "UnusedReturnValue"}) // functionality from owo-lib left as-is
 public class BackgroundlessTextAreaComponent extends MultiLineEditBox {

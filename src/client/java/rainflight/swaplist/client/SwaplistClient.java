@@ -17,6 +17,10 @@ public class SwaplistClient implements ClientModInitializer {
             rainflight.swaplist.client.SwaplistConfig.createAndLoad();
     public static HudDisplay hudDisplay;
 
+    static {
+        UIParsingRegister.init();
+    }
+
     @Override
     public void onInitializeClient() {
         KeyMapping.Category category =

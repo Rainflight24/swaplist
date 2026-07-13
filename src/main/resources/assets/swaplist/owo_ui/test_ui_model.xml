@@ -1,0 +1,167 @@
+<owo-ui xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/wisp-forest/owo-lib/1.21.11/owo-ui.xsd">
+    <components>
+        <flow-layout direction="vertical">
+            <children>
+                <flow-layout direction="vertical" id="header">
+                    <children>
+                        <label id="title">
+                            <text translate="true">translate me</text>
+                            <shadow>true</shadow>
+                            <margins>
+                                <vertical>10</vertical>
+                            </margins>
+                        </label>
+                    </children>
+                    <horizontal-alignment>center</horizontal-alignment>
+                    <vertical-alignment>center</vertical-alignment>
+
+                </flow-layout>
+<!--                <flow-layout direction="horizontal" id="searchbar">-->
+<!--                    &lt;!&ndash;Copy of owo's config searchbar&ndash;&gt;-->
+<!--                    <children>-->
+<!--                        <texture texture="owo:textures/gui/config_search.png"-->
+<!--                                 texture-width="16" texture-height="16"-->
+<!--                                 region-width="16" region-height="16">-->
+<!--                            <margins>-->
+<!--                                <all>2</all>-->
+<!--                            </margins>-->
+<!--                        </texture>-->
+
+<!--                        <flow-layout direction="horizontal">-->
+<!--                            <children>-->
+<!--                                <text-box id="search-field">-->
+<!--                                    <show-background>false</show-background>-->
+<!--                                    <max-length>128</max-length>-->
+
+<!--                                    <sizing>-->
+<!--                                        <horizontal method="fill">50</horizontal>-->
+<!--                                        <vertical method="fixed">9</vertical>-->
+<!--                                    </sizing>-->
+<!--                                </text-box>-->
+
+<!--                                <label id="search-match-indicator">-->
+<!--                                    <margins>-->
+<!--                                        <horizontal>5</horizontal>-->
+<!--                                    </margins>-->
+<!--                                </label>-->
+<!--                            </children>-->
+
+<!--                            <surface>-->
+<!--                                <vanilla-translucent/>-->
+<!--                            </surface>-->
+
+<!--                            <vertical-alignment>center</vertical-alignment>-->
+
+<!--                            <padding>-->
+<!--                                <all>3</all>-->
+<!--                            </padding>-->
+<!--                        </flow-layout>-->
+<!--                    </children>-->
+
+<!--                    <vertical-alignment>center</vertical-alignment>-->
+
+<!--                    <positioning type="relative">0,50</positioning>-->
+<!--                </flow-layout>-->
+                <box>
+                    <sizing>
+                        <vertical method="fixed">1</vertical>
+                        <horizontal method="fill">100</horizontal>
+                    </sizing>
+                    <color>white</color>
+
+                    <fill>true</fill>
+                </box>
+                <box>
+                    <sizing>
+                        <vertical method="fixed">1</vertical>
+                        <horizontal method="fill">100</horizontal>
+                    </sizing>
+
+                    <fill>true</fill>
+                </box>
+
+                <scroll direction="vertical" id="catalogue">
+                    <flow-layout direction="vertical">
+                        <children>
+                            <swaplist.selectable-label>
+                                <text>So this is selectable right??</text>
+                            </swaplist.selectable-label>
+                            <flow-layout direction="horizontal">
+                                <children>
+
+                                    <label>
+                                        <text>Item -1</text>
+                                        <shadow>true</shadow>
+                                        <margins>
+                                            <all>3</all>
+                                        </margins>
+                                    </label>
+                                </children>
+                                <gap>1</gap>
+                                <padding>
+                                    <vertical>5</vertical>
+                                </padding>
+                                <vertical-alignment>center</vertical-alignment>
+                            </flow-layout>
+                            <swaplist.selectable-label>
+                                <text>Item \n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n1Item \n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n1Item \n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n1Item \n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n1Item \n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n1Item \n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n1Item \n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n1Item \n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n1Item \n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n1Item \n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n1Item \n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n1Item \n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n1Item \n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n1Item \n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n1Item \n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n1Item \n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n1Item \n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n1Item \n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n1Item \n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n1Item \n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n1Item \n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n1Item \n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n1Item \n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n1Item \n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n1Item \n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n1Item \n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n1Item \n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n1Item \n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n1Item \n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n1Item \n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n1Item \n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n1Item \n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n1Item \n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n1Item \n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n1Item \n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n1Item \n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n1Item \n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n1Item \n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n1Item \n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n1Item \n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n1Item \n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n1Item \n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n1Item \n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n1Item \n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n1Item \n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n1Item \n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n1Item \n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n1Item \n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n1Item \n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n1Item \n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n1Item \n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n1Item \n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n1Item \n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n1Item \n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n1Item \n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n1Item \n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n1Item \n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n1Item \n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n1Item \n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n1Item \n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n1Item \n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n1Item \n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n1Item \n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n1</text>
+                            </swaplist.selectable-label>
+                            <swaplist.selectable-label><text>a</text></swaplist.selectable-label><swaplist.selectable-label><text>a</text></swaplist.selectable-label><swaplist.selectable-label><text>a</text></swaplist.selectable-label><swaplist.selectable-label><text>a</text></swaplist.selectable-label><swaplist.selectable-label><text>a</text></swaplist.selectable-label><swaplist.selectable-label><text>a</text></swaplist.selectable-label><swaplist.selectable-label><text>a</text></swaplist.selectable-label><swaplist.selectable-label><text>a</text></swaplist.selectable-label><swaplist.selectable-label><text>a</text></swaplist.selectable-label><swaplist.selectable-label><text>a</text></swaplist.selectable-label><swaplist.selectable-label><text>a</text></swaplist.selectable-label><swaplist.selectable-label><text>a</text></swaplist.selectable-label><swaplist.selectable-label><text>a</text></swaplist.selectable-label><swaplist.selectable-label><text>a</text></swaplist.selectable-label><swaplist.selectable-label><text>a</text></swaplist.selectable-label><swaplist.selectable-label><text>a</text></swaplist.selectable-label>
+                            <label>
+                                <text>Item 2</text>
+                            </label>
+                            <label>
+                                <text>Item 3</text>
+                            </label>
+                        </children>
+                    </flow-layout>
+                    <padding>
+                        <all>10</all>
+                    </padding>
+
+                    <sizing>
+                        <vertical method="expand">100</vertical>
+                        <horizontal method="fixed">256</horizontal>
+                    </sizing>
+
+                    <surface>
+                        <vanilla-translucent/>
+                    </surface>
+                </scroll>
+
+                <flow-layout direction="vertical" id="footer">
+                    <children>
+                        <button>
+                            <text>asdf</text>
+                        </button>
+                    </children>
+                    <margins>
+                        <vertical>10</vertical>
+                    </margins>
+
+                </flow-layout>
+
+            </children>
+
+            <vertical-alignment>bottom</vertical-alignment>
+            <horizontal-alignment>center</horizontal-alignment>
+            <sizing>
+                <vertical method="fill">100</vertical>
+                <horizontal method="fill">100</horizontal>
+            </sizing>
+
+            <surface>
+                <options-background/>
+            </surface>
+        </flow-layout>
+    </components>
+
+    <templates>
+        <template name="entry">
+            <label>
+                <shadow>true</shadow>
+            </label>
+        </template>
+    </templates>
+</owo-ui>
