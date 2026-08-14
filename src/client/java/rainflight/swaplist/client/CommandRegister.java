@@ -1,5 +1,6 @@
 package rainflight.swaplist.client;
 
+import static rainflight.swaplist.client.SwaplistClient.CONFIG;
 import static rainflight.swaplist.client.SwaplistClient.hudDisplay;
 
 import com.mojang.brigadier.arguments.IntegerArgumentType;
@@ -14,7 +15,11 @@ import net.minecraft.network.chat.Component;
 public class CommandRegister {
 
     public static final CollectionSuggestionProvider<String> LIST_SUGGESTION_PROVIDER =
-            new CollectionSuggestionProvider<>(() -> SwaplistClient.CONFIG.lists().keySet());
+            new CollectionSuggestionProvider<>(
+                    () ->
+                            SwaplistClient.CONFIG.lists().stream()
+                                    .map(todoList -> todoList.name)
+                                    .toList());
     public static final CollectionSuggestionProvider<String> TEMPLATE_SUGGESTION_PROVIDER =
             new CollectionSuggestionProvider<>(() -> SwaplistClient.CONFIG.templates().keySet());
 
@@ -191,7 +196,7 @@ public class CommandRegister {
             context.getSource()
                     .sendError(
                             Component.literal(
-                                    "Index %1$d is out of range. Must be between 1 and %2$d (the length of the list), or -%2$d and -1."
+                                    "Index %1$d is out of range. Must be between 1 to %2$d (the length of the list), or -%2$d to -1."
                                             .formatted(idx, size)));
             return Optional.empty();
         }
@@ -235,22 +240,25 @@ public class CommandRegister {
     }
 
     private static int executeNew(CommandContext<FabricClientCommandSource> context) {
-        String key = ConfigUtils.newList();
-        ConfigUtils.setActiveList(key);
+        TodoList newList = ConfigUtils.newList();
+        ConfigUtils.setActiveList(newList);
+        context.getSource()
+                .sendFeedback(Component.literal("Created new list: %s".formatted(newList.name)));
 
         return 1;
     }
 
     private static int executeSwap(CommandContext<FabricClientCommandSource> context) {
-        String key = StringArgumentType.getString(context, "list_name");
+        String name = StringArgumentType.getString(context, "list_name");
 
-        if (!ConfigUtils.isListExistent(key)) {
+        Optional<TodoList> list = ConfigUtils.fetchList(name);
+        if (list.isEmpty()) {
             context.getSource()
                     .sendError(
-                            Component.literal("Provided list (%s) does not exist".formatted(key)));
+                            Component.literal("Provided list (%s) does not exist".formatted(name)));
             return 0;
         }
-        ConfigUtils.setActiveList(key);
+        ConfigUtils.setActiveList(list.get());
         return 1;
     }
 
@@ -271,7 +279,18 @@ public class CommandRegister {
 
     private static int executeDelete(
             CommandContext<FabricClientCommandSource> context, String toDelete) {
+        int origSize = CONFIG.lists().size();
         if (ConfigUtils.deleteList(toDelete)) {
+            context.getSource()
+                    .sendFeedback(Component.literal("Deleted list: %s".formatted(toDelete)));
+            if (origSize == 1) {
+                // We successfully deleted the last list, and created a new one.
+                context.getSource()
+                        .sendFeedback(
+                                Component.literal(
+                                        "All lists deleted; created new list: %s"
+                                                .formatted(ConfigUtils.getCurList().name)));
+            }
             return 1;
         } else {
             context.getSource()

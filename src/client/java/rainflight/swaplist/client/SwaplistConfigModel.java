@@ -8,6 +8,7 @@ import io.wispforest.owo.config.annotation.*;
 import io.wispforest.owo.ui.core.Color;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import rainflight.swaplist.Swaplist;
 
@@ -27,9 +28,9 @@ public class SwaplistConfigModel {
     @Hook public Color listColor = new Color(0, 64, 255);
 
     @Hook @ExcludeFromScreen
-    public Map<String, TodoList> lists =
-            new HashMap<>(
-                    Map.of(firstDefaultList, new TodoList(firstDefaultList, new ArrayList<>())));
+    // Invariant: There will always be at least one TodoList in lists during rendering.
+    public List<TodoList> lists =
+            new ArrayList<>(List.of(new TodoList(firstDefaultList, new ArrayList<>())));
 
     @ExcludeFromScreen public Map<String, TodoList> templates = new HashMap<>();
     @Hook public String curActiveList = firstDefaultList;

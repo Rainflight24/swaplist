@@ -5,7 +5,7 @@ import static rainflight.swaplist.client.SwaplistClient.CONFIG;
 import io.wispforest.owo.ui.core.Color;
 import io.wispforest.owo.ui.core.Positioning;
 import io.wispforest.owo.ui.hud.Hud;
-import java.util.Map;
+import java.util.List;
 import java.util.function.Consumer;
 import net.minecraft.resources.Identifier;
 import rainflight.swaplist.client.ConfigUtils;
@@ -22,7 +22,7 @@ public class HudDisplay {
         Consumer<Integer> intConsumer = unused -> rebuild();
         Consumer<String> stringConsumer = unused -> rebuild();
         Consumer<Color> colorConsumer = unused -> rebuild();
-        Consumer<Map<String, TodoList>> listsConsumer = unused -> rebuild();
+        Consumer<List<TodoList>> listsConsumer = unused -> rebuild();
 
         CONFIG.subscribeToListVisible(boolConsumer);
         CONFIG.subscribeToListWidth(intConsumer);

@@ -4,6 +4,7 @@ import static rainflight.swaplist.client.SwaplistClient.CONFIG;
 
 import java.util.*;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 import org.jspecify.annotations.NonNull;
 import rainflight.swaplist.Swaplist;
 
@@ -13,7 +14,7 @@ import rainflight.swaplist.Swaplist;
 public final class ConfigUtils {
     // data constants for SwaplistConfigModel
     static final String finalDefaultListSuffix = "New List";
-    static final String firstDefaultList = ConfigUtils.uniqueKey(finalDefaultListSuffix, Set.of());
+    static final String firstDefaultList = ConfigUtils.uniqueName(finalDefaultListSuffix, Set.of());
 
     private ConfigUtils() {}
 
@@ -32,20 +33,35 @@ public final class ConfigUtils {
         };
     }
 
+    /**
+     * Generates a unique list name, based on the default list suffix.
+     * @return A unique list name.
+     */
     public static @NonNull String uniqueListKey() {
-        var map = CONFIG.lists();
-        return ConfigUtils.uniqueKey(CONFIG.defaultListSuffix(), map.keySet());
+        return ConfigUtils.uniqueName(CONFIG.defaultListSuffix());
     }
 
     /**
-     * Generates a string of the form "nth suffix" not already in the map. The lowest positive integer not in the map is
-     * returned.
+     * Generates a list name of the form "nth suffix" not already present in Config.lists().
      *
      * @param suffix String appended to the generated key.
-     * @param set    Set of taken names.
      * @return A unique key.
      */
-    public static @NonNull String uniqueKey(String suffix, Set<String> set) {
+    public static @NonNull String uniqueName(String suffix) {
+        return uniqueName(
+                suffix,
+                CONFIG.lists().stream().map(todoList -> todoList.name).collect(Collectors.toSet()));
+    }
+
+    /**
+     * Generates a name of the form "nth suffix" not already present in the list.
+     *
+     * @param suffix String appended to the generated key.
+     * @param data   Collection of names not to generate.
+     * @return A unique key.
+     */
+    public static @NonNull String uniqueName(String suffix, Collection<String> data) {
+        Set<String> set = new HashSet<>(data);
         int i = 1;
         String key = ordinal(i) + " " + suffix;
         while (set.contains(key)) {
@@ -53,16 +69,6 @@ public final class ConfigUtils {
             key = ordinal(i) + " " + suffix;
         }
         return key;
-    }
-
-    /**
-     * Checks if a list exists.
-     *
-     * @param key The key of the list to check existence for.
-     * @return Whether the list exists.
-     */
-    public static boolean isListExistent(String key) {
-        return CONFIG.lists().containsKey(key);
     }
 
     /**
@@ -77,40 +83,28 @@ public final class ConfigUtils {
     }
 
     /**
-     * Saves the provided todolist to config, while replacing the currently active list. Does not
-     * persist on its own; the caller decides whether to {@link #save()}.
+     * Fetches the currently active TodoList from config.
      *
-     * @param list The todolist to save.
-     */
-    public static void saveCurList(final TodoList list) {
-        final var lists = new HashMap<>(CONFIG.lists());
-        lists.put(list.name, list);
-        CONFIG.lists(lists);
-    }
-
-    /**
-     * Fetches a copy of the currently active TodoList from config.
-     *
-     * @return A copy of the current TodoList.
+     * @return The current TodoList.
      */
     public static TodoList getCurList() {
-        String curKey = CONFIG.curActiveList();
-        TodoList list = CONFIG.lists().get(curKey);
+        Optional<TodoList> list = fetchList(CONFIG.curActiveList());
 
-        if (list == null) {
-            throw new IllegalStateException("Active list " + curKey + " is missing.");
+        if (list.isEmpty()) {
+            throw new IllegalStateException(
+                    "Active list " + CONFIG.curActiveList() + " is missing.");
         }
-        return new TodoList(list);
+        return list.get();
     }
 
     public static void ensureValidActiveList() {
-        String oldList = CONFIG.curActiveList();
+        Optional<TodoList> oldList = fetchList(CONFIG.curActiveList());
         if (CONFIG.lists().isEmpty()) {
-            String nextList = newList();
+            TodoList nextList = newList();
             setActiveList(nextList);
             Swaplist.LOGGER.warn("No todolists found! Created a new one named {}", nextList);
-        } else if (!CONFIG.lists().containsKey(oldList)) {
-            String nextList = getFirstList();
+        } else if (oldList.isEmpty()) {
+            TodoList nextList = getFirstList();
             setActiveList(nextList);
             Swaplist.LOGGER.warn(
                     "Active list {} is missing. Set active list to {}", oldList, nextList);
@@ -118,44 +112,56 @@ public final class ConfigUtils {
     }
 
     /**
-     * Gets the lexicographically first key from CONFIG.lists(). Calls {@code this.newList} if CONFIG.lists() is somehow
-     * empty.
+     * Gets the lexicographically first key from CONFIG.lists(). Requires CONFIG.lists() to be non-empty.
      *
      * @return The lexicographically first key.
      */
-    public static @NonNull String getFirstList() {
-        return Collections.min(CONFIG.lists().keySet());
+    public static @NonNull TodoList getFirstList() {
+        if (CONFIG.lists().isEmpty()) throw new IllegalStateException("CONFIG.lists() is empty!");
+        return Collections.min(CONFIG.lists());
     }
 
     /**
      * Creates a new list using CONFIG.defaultListSuffix.
      *
-     * @return The key of the created list. It will end with the defaultListSuffix.
+     * @return The created TodoList. Its name ends with the defaultListSuffix.
      */
-    public static @NonNull String newList() {
-        Map<String, TodoList> lists = new HashMap<>(CONFIG.lists());
+    public static @NonNull TodoList newList() {
+        var lists = CONFIG.lists();
         String key = uniqueListKey();
 
-        lists.put(key, new TodoList(key, new ArrayList<>()));
+        TodoList newList = new TodoList(key, new ArrayList<>());
+        lists.add(newList);
         CONFIG.lists(lists);
         save();
-        return key;
+        return newList;
     }
 
     /**
-     * Deletes the given list from config.
+     * Deletes the given list from config. If the current list was deleted, the first list is loaded.
+     * Creates a new, default list when the last list is deleted.
      *
      * @param toDelete The key of the list to delete.
      * @return Whether the given list was successfully deleted.
      */
     public static boolean deleteList(String toDelete) {
-        var lists = new HashMap<>(CONFIG.lists());
+        var lists = CONFIG.lists();
+        var firstList = getFirstList();
 
-        if (lists.containsKey(toDelete)) {
-            lists.remove(toDelete);
-            CONFIG.lists(lists);
-            setActiveList(getFirstList());
-            return true;
+        for (TodoList tlist : lists) {
+            if (tlist.name.equals(toDelete)) {
+                lists.remove(tlist);
+                CONFIG.lists(lists);
+
+                // If the current list was deleted, load the first one.
+                if (firstList == tlist) {
+                    if (CONFIG.lists().isEmpty()) {
+                        newList();
+                    }
+                    setActiveList(getFirstList());
+                }
+                return true;
+            }
         }
         return false;
     }
@@ -167,22 +173,13 @@ public final class ConfigUtils {
      * @return Whether the rename succeeded.
      */
     public static boolean renameCurrent(String newName) {
-        final Map<String, TodoList> lists = new HashMap<>(CONFIG.lists());
+        var lists = CONFIG.lists();
         TodoList list = getCurList();
-
-        if (lists.containsKey(newName)) {
-            Swaplist.LOGGER.warn(
-                    "Ignored attempt at overwriting list {} during a rename.", newName);
-            return false;
-        }
-
-        lists.remove(list.name);
-
         list.name = newName;
-        lists.put(newName, list);
 
         CONFIG.lists(lists);
-        setActiveList(newName);
+        CONFIG.curActiveList(newName);
+        save();
         return true;
     }
 
@@ -194,7 +191,6 @@ public final class ConfigUtils {
     public static void pushLine(String line) {
         final TodoList list = getCurList();
         list.items.add(new TodoList.ListItem(line, false));
-        saveCurList(list);
         save();
     }
 
@@ -205,7 +201,6 @@ public final class ConfigUtils {
         final TodoList list = getCurList();
         if (!list.items.isEmpty()) {
             list.items.removeLast();
-            saveCurList(list);
             save();
         }
     }
@@ -221,7 +216,6 @@ public final class ConfigUtils {
         final TodoList list = getCurList();
         if (!list.isValidIndex(idx)) return;
         op.accept(list.items);
-        saveCurList(list);
         if (doSave) save();
     }
 
@@ -257,25 +251,34 @@ public final class ConfigUtils {
      * @param text The box's new text.
      */
     public static void changeLine(int idx, String text) {
-        mutateLine(
-                idx,
-                listItems -> {
-                    listItems.get(idx).text = text;
-                },
-                false);
+        mutateLine(idx, listItems -> listItems.get(idx).text = text, false);
+    }
+
+    /**
+     * Fetches the TodoList with a given name.
+     *
+     * @param name The name of the TodoList to fetch.
+     * @return The desired TodoList, if it exists.
+     */
+    public static Optional<TodoList> fetchList(String name) {
+        var lists = CONFIG.lists();
+
+        for (TodoList list : lists) if (list.name.equals(name)) return Optional.of(list);
+
+        return Optional.empty();
     }
 
     /**
      * Changes the currently active list.
      *
-     * @param key The key of the newly active list.
+     * @param tlist The list to set as active.
      */
-    public static void setActiveList(String key) {
-        if (CONFIG.lists().containsKey(key)) {
-            CONFIG.curActiveList(key);
+    public static void setActiveList(TodoList tlist) {
+        if (CONFIG.lists().contains(tlist)) {
+            CONFIG.curActiveList(tlist.name);
             save();
         } else {
-            Swaplist.LOGGER.warn("Attempted to set active list to nonexistent key {}.", key);
+            Swaplist.LOGGER.warn("Attempted to set active list to nonexistent list {}.", tlist);
         }
     }
 
@@ -330,13 +333,13 @@ public final class ConfigUtils {
             return Optional.empty();
         }
 
-        final Map<String, TodoList> lists = new HashMap<>(CONFIG.lists());
-        String key = uniqueKey(templateName, lists.keySet());
-
-        lists.put(key, new TodoList(key, template.items));
+        var lists = CONFIG.lists();
+        String name = uniqueName(templateName);
+        lists.add(new TodoList(name, template.items));
         CONFIG.lists(lists);
-        setActiveList(key);
-        return Optional.of(key);
+        CONFIG.curActiveList(name);
+        save();
+        return Optional.of(name);
     }
 
     public static void setHudVisibility(boolean visible) {
