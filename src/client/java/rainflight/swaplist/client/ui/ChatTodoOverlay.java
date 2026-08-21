@@ -4,7 +4,6 @@ import io.wispforest.owo.ui.container.FlowLayout;
 import io.wispforest.owo.ui.core.ParentUIComponent;
 import io.wispforest.owo.ui.core.Sizing;
 import io.wispforest.owo.ui.core.UIComponent;
-import io.wispforest.owo.ui.layers.Layers;
 import io.wispforest.owo.ui.util.FocusHandler;
 import java.util.ArrayList;
 import net.fabricmc.fabric.api.client.screen.v1.ScreenEvents;
@@ -13,12 +12,13 @@ import net.minecraft.client.input.CharacterEvent;
 import net.minecraft.client.input.KeyEvent;
 import org.lwjgl.glfw.GLFW;
 import rainflight.swaplist.client.SwaplistClient;
+import rainflight.swaplist.client.ui.layers.PreLayers;
 
 public final class ChatTodoOverlay {
 
     public static void addListToChatScreen() {
 
-        Layers.add(
+        PreLayers.add(
                 (sx, sy) -> new FocusLayout(sx, sy, FlowLayout.Algorithm.VERTICAL),
                 (instance) -> {
                     SwaplistClient.hudDisplay.setHideUnderScreen(true);
@@ -90,7 +90,8 @@ public final class ChatTodoOverlay {
         @Override
         public void mount(ParentUIComponent parent, int x, int y) {
             super.mount(parent, x, y);
-            this.focusHandler = new ConsistentFocusHandler(this);
+            if (parent == null && this.focusHandler == null)
+                this.focusHandler = new ConsistentFocusHandler(this);
         }
 
         /**
