@@ -1,7 +1,11 @@
 package rainflight.swaplist.client.ui;
 
 import io.wispforest.owo.ui.base.BaseUIModelScreen;
+import io.wispforest.owo.ui.component.LabelComponent;
 import io.wispforest.owo.ui.container.FlowLayout;
+import io.wispforest.owo.ui.container.ScrollContainer;
+import io.wispforest.owo.ui.container.UIContainers;
+import io.wispforest.owo.ui.core.Sizing;
 import java.util.Map;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
@@ -31,16 +35,20 @@ public class MyModelScreen extends BaseUIModelScreen<FlowLayout> {
                     .rootComponent
                     .childById(FlowLayout.class, "catalogue-container")
                     .child(
-                            this.model
-                                    .expandTemplate(
-                                            SelectableLabelComponent.class,
-                                            "catalogue-entry@swaplist:test_ui_model",
-                                            Map.of())
-                                    .configure(
-                                            component -> {
-                                                var c = (SelectableLabelComponent) component;
-                                                c.text(Component.literal(list.name));
-                                            }));
+                            UIContainers.horizontalScroll(
+                                            Sizing.fill(100),
+                                            Sizing.content(),
+                                            this.model
+                                                    .expandTemplate(
+                                                            LabelComponent.class,
+                                                            "catalogue-entry@swaplist:test_ui_model",
+                                                            Map.of())
+                                                    .<LabelComponent>configure(
+                                                            label ->
+                                                                    label.text(
+                                                                            Component.literal(
+                                                                                    list.name))))
+                                    .<ScrollContainer<LabelComponent>>configure(scroll -> {}));
         }
     }
 }

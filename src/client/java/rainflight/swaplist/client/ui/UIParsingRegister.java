@@ -10,6 +10,7 @@ public class UIParsingRegister {
         UIParsing.registerFactory(
                 Swaplist.of("selectable-label"),
                 element -> new SelectableLabelComponent(Component.empty()));
+
         UIParsing.registerFactory(Swaplist.of("scroll"), ScrollContainer::parse);
 
         UIParsing.registerFactory(

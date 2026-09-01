@@ -17,52 +17,52 @@
                     <vertical-alignment>center</vertical-alignment>
 
                 </flow-layout>
-<!--                <flow-layout direction="horizontal" id="searchbar">-->
-<!--                    &lt;!&ndash;Copy of owo's config searchbar&ndash;&gt;-->
-<!--                    <children>-->
-<!--                        <texture texture="owo:textures/gui/config_search.png"-->
-<!--                                 texture-width="16" texture-height="16"-->
-<!--                                 region-width="16" region-height="16">-->
-<!--                            <margins>-->
-<!--                                <all>2</all>-->
-<!--                            </margins>-->
-<!--                        </texture>-->
+                <!--                <flow-layout direction="horizontal" id="searchbar">-->
+                <!--                    &lt;!&ndash;Copy of owo's config searchbar&ndash;&gt;-->
+                <!--                    <children>-->
+                <!--                        <texture texture="owo:textures/gui/config_search.png"-->
+                <!--                                 texture-width="16" texture-height="16"-->
+                <!--                                 region-width="16" region-height="16">-->
+                <!--                            <margins>-->
+                <!--                                <all>2</all>-->
+                <!--                            </margins>-->
+                <!--                        </texture>-->
 
-<!--                        <flow-layout direction="horizontal">-->
-<!--                            <children>-->
-<!--                                <text-box id="search-field">-->
-<!--                                    <show-background>false</show-background>-->
-<!--                                    <max-length>128</max-length>-->
+                <!--                        <flow-layout direction="horizontal">-->
+                <!--                            <children>-->
+                <!--                                <text-box id="search-field">-->
+                <!--                                    <show-background>false</show-background>-->
+                <!--                                    <max-length>128</max-length>-->
 
-<!--                                    <sizing>-->
-<!--                                        <horizontal method="fill">50</horizontal>-->
-<!--                                        <vertical method="fixed">9</vertical>-->
-<!--                                    </sizing>-->
-<!--                                </text-box>-->
+                <!--                                    <sizing>-->
+                <!--                                        <horizontal method="fill">50</horizontal>-->
+                <!--                                        <vertical method="fixed">9</vertical>-->
+                <!--                                    </sizing>-->
+                <!--                                </text-box>-->
 
-<!--                                <label id="search-match-indicator">-->
-<!--                                    <margins>-->
-<!--                                        <horizontal>5</horizontal>-->
-<!--                                    </margins>-->
-<!--                                </label>-->
-<!--                            </children>-->
+                <!--                                <label id="search-match-indicator">-->
+                <!--                                    <margins>-->
+                <!--                                        <horizontal>5</horizontal>-->
+                <!--                                    </margins>-->
+                <!--                                </label>-->
+                <!--                            </children>-->
 
-<!--                            <surface>-->
-<!--                                <vanilla-translucent/>-->
-<!--                            </surface>-->
+                <!--                            <surface>-->
+                <!--                                <vanilla-translucent/>-->
+                <!--                            </surface>-->
 
-<!--                            <vertical-alignment>center</vertical-alignment>-->
+                <!--                            <vertical-alignment>center</vertical-alignment>-->
 
-<!--                            <padding>-->
-<!--                                <all>3</all>-->
-<!--                            </padding>-->
-<!--                        </flow-layout>-->
-<!--                    </children>-->
+                <!--                            <padding>-->
+                <!--                                <all>3</all>-->
+                <!--                            </padding>-->
+                <!--                        </flow-layout>-->
+                <!--                    </children>-->
 
-<!--                    <vertical-alignment>center</vertical-alignment>-->
+                <!--                    <vertical-alignment>center</vertical-alignment>-->
 
-<!--                    <positioning type="relative">0,50</positioning>-->
-<!--                </flow-layout>-->
+                <!--                    <positioning type="relative">0,50</positioning>-->
+                <!--                </flow-layout>-->
                 <box>
                     <sizing>
                         <vertical method="fixed">1</vertical>
@@ -82,47 +82,16 @@
                 </box>
 
                 <scroll direction="vertical" id="catalogue">
-                    <flow-layout direction="vertical">
-                        <children>
-                            <swaplist.selectable-label>
-                                <text>So this is selectable right??</text>
-                            </swaplist.selectable-label>
-                            <flow-layout direction="horizontal">
-                                <children>
-
-                                    <label>
-                                        <text>Item -1</text>
-                                        <shadow>true</shadow>
-                                        <margins>
-                                            <all>3</all>
-                                        </margins>
-                                    </label>
-                                </children>
-                                <gap>1</gap>
-                                <padding>
-                                    <vertical>5</vertical>
-                                </padding>
-                                <vertical-alignment>center</vertical-alignment>
-                            </flow-layout>
-                            <swaplist.selectable-label>
-                                <text>Item \n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n1Item \n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n1Item \n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n1Item \n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n1Item \n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n1Item \n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n1Item \n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n1Item \n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n1Item \n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n1Item \n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n1Item \n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n1Item \n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n1Item \n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n1Item \n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n1Item \n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n1Item \n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n1Item \n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n1Item \n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n1Item \n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n1Item \n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n1Item \n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n1Item \n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n1Item \n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n1Item \n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n1Item \n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n1Item \n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n1Item \n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n1Item \n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n1Item \n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n1Item \n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n1Item \n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n1Item \n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n1Item \n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n1Item \n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n1Item \n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n1Item \n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n1Item \n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n1Item \n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n1Item \n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n1Item \n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n1Item \n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n1Item \n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n1Item \n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n1Item \n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n1Item \n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n1Item \n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n1Item \n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n1Item \n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n1Item \n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n1Item \n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n1Item \n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n1Item \n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n1Item \n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n1Item \n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n1Item \n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n1Item \n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n1Item \n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n1Item \n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n1Item \n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n1Item \n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n1Item \n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n1Item \n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n1Item \n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n1</text>
-                            </swaplist.selectable-label>
-                            <swaplist.selectable-label><text>a</text></swaplist.selectable-label><swaplist.selectable-label><text>a</text></swaplist.selectable-label><swaplist.selectable-label><text>a</text></swaplist.selectable-label><swaplist.selectable-label><text>a</text></swaplist.selectable-label><swaplist.selectable-label><text>a</text></swaplist.selectable-label><swaplist.selectable-label><text>a</text></swaplist.selectable-label><swaplist.selectable-label><text>a</text></swaplist.selectable-label><swaplist.selectable-label><text>a</text></swaplist.selectable-label><swaplist.selectable-label><text>a</text></swaplist.selectable-label><swaplist.selectable-label><text>a</text></swaplist.selectable-label><swaplist.selectable-label><text>a</text></swaplist.selectable-label><swaplist.selectable-label><text>a</text></swaplist.selectable-label><swaplist.selectable-label><text>a</text></swaplist.selectable-label><swaplist.selectable-label><text>a</text></swaplist.selectable-label><swaplist.selectable-label><text>a</text></swaplist.selectable-label><swaplist.selectable-label><text>a</text></swaplist.selectable-label>
-                            <label>
-                                <text>Item 2</text>
-                            </label>
-                            <label>
-                                <text>Item 3</text>
-                            </label>
-                        </children>
+                    <flow-layout direction="vertical" id="catalogue-container">
+                        <children/>
                     </flow-layout>
                     <padding>
-                        <all>10</all>
+                        <all>13</all>
                     </padding>
 
                     <sizing>
                         <vertical method="expand">100</vertical>
-                        <horizontal method="fixed">256</horizontal>
+                        <horizontal method="fixed">300</horizontal>
                     </sizing>
 
                     <surface>
@@ -130,15 +99,66 @@
                     </surface>
                 </scroll>
 
+                <box>
+                    <sizing>
+                        <vertical method="fixed">1</vertical>
+                        <horizontal method="fixed">300</horizontal>
+                    </sizing>
+
+                    <fill>true</fill>
+                </box>
+                <box>
+                    <sizing>
+                        <vertical method="fixed">1</vertical>
+                        <horizontal method="fixed">300</horizontal>
+                    </sizing>
+                    <color>white</color>
+
+                    <fill>true</fill>
+                </box>
+
                 <flow-layout direction="vertical" id="footer">
                     <children>
-                        <button>
-                            <text>asdf</text>
-                        </button>
+                        <flow-layout direction="horizontal" id="footer-row1">
+                            <children>
+                                <button id="load">
+                                    <renderer>
+                                        <flat color="black" hovered-color="dark-gray" disabled-color="red"/>
+                                    </renderer>
+                                    <text>Load List</text>
+                                </button>
+                                <button id="rename">
+                                    <text>Rename</text>
+                                    <active>false</active>
+                                </button>
+                                <button id="new">
+                                    <text>New List</text>
+                                </button>
+                                <button id="delete">
+                                    <text>Delete</text>
+                                </button>
+                            </children>
+                            <gap>10</gap>
+
+                        </flow-layout>
+                        <flow-layout direction="horizontal" id="footer-row2">
+                            <children>
+                                <button id="load">
+                                    <text>Templates</text>
+                                </button>
+                                <button id="save-as">
+                                    <text>Save As</text>
+                                </button>
+                            </children>
+                            <gap>10</gap>
+                        </flow-layout>
                     </children>
+
                     <margins>
-                        <vertical>10</vertical>
+                        <all>10</all>
                     </margins>
+                    <gap>7</gap>
+                    <horizontal-alignment>center</horizontal-alignment>
 
                 </flow-layout>
 
@@ -146,10 +166,6 @@
 
             <vertical-alignment>bottom</vertical-alignment>
             <horizontal-alignment>center</horizontal-alignment>
-            <sizing>
-                <vertical method="fill">100</vertical>
-                <horizontal method="fill">100</horizontal>
-            </sizing>
 
             <surface>
                 <options-background/>
@@ -158,9 +174,11 @@
     </components>
 
     <templates>
-        <template name="entry">
-            <label>
+        <template name="catalogue-entry">
+            <label id="label">
+                <text>asdfg</text>
                 <shadow>true</shadow>
+                <color>#cbcbcb</color>
             </label>
         </template>
     </templates>
